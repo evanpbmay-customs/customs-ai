@@ -15,6 +15,26 @@ openai_client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
 pc = Pinecone(api_key=os.getenv('PINECONE_API_KEY'))
 index = pc.Index(os.getenv('PINECONE_INDEX'))
 
+# Countries with active 2025 tariff actions
+TARIFF_ALERT_COUNTRIES = {
+    "Vietnam": "⚠️ Vietnam is subject to 2025 reciprocal tariffs (currently ~20%, subject to change). Rates are under active review — verify current rates at hts.usitc.gov before making import decisions.",
+    "China (Section 301 tariffs apply)": "⚠️ China faces Section 301 tariffs (7.5%-25% depending on product list) PLUS 2025 executive tariffs. Total additional duties may exceed 145% on some products. Verify current rates before importing.",
+    "Hong Kong (Section 301 tariffs apply)": "⚠️ Hong Kong goods are treated as Chinese-origin for tariff purposes and subject to the same Section 301 and 2025 executive tariffs as China.",
+    "Cambodia": "⚠️ Cambodia is subject to 2025 reciprocal tariffs. Rates are under active review — verify current rates before making import decisions.",
+    "Bangladesh": "⚠️ Bangladesh is subject to 2025 reciprocal tariffs. Rates are under active review — verify current rates before making import decisions.",
+    "India": "⚠️ India is subject to 2025 reciprocal tariffs. Rates are under active review — verify current rates before making import decisions.",
+    "Thailand": "⚠️ Thailand is subject to 2025 reciprocal tariffs. Rates are under active review — verify current rates before making import decisions.",
+    "Indonesia": "⚠️ Indonesia is subject to 2025 reciprocal tariffs. Rates are under active review — verify current rates before making import decisions.",
+    "Taiwan": "⚠️ Taiwan is subject to 2025 reciprocal tariffs. Rates are under active review — verify current rates before making import decisions.",
+    "Japan": "⚠️ Japan is subject to 2025 reciprocal tariffs. Rates are under active review — verify current rates before making import decisions.",
+    "South Korea (KORUS FTA - may qualify for free)": "⚠️ South Korea is subject to 2025 reciprocal tariffs which may override KORUS FTA benefits on some products. Verify current rates before making import decisions.",
+    "Germany": "⚠️ Germany (EU) is subject to 2025 reciprocal tariffs. Rates are under active review — verify current rates before making import decisions.",
+    "Italy": "⚠️ Italy (EU) is subject to 2025 reciprocal tariffs. Rates are under active review — verify current rates before making import decisions.",
+    "France": "⚠️ France (EU) is subject to 2025 reciprocal tariffs. Rates are under active review — verify current rates before making import decisions.",
+    "Spain": "⚠️ Spain (EU) is subject to 2025 reciprocal tariffs. Rates are under active review — verify current rates before making import decisions.",
+    "Netherlands": "⚠️ Netherlands (EU) is subject to 2025 reciprocal tariffs. Rates are under active review — verify current rates before making import decisions.",
+}
+
 def get_embedding(text):
     response = openai_client.embeddings.create(
         input=text[:8000],
@@ -55,7 +75,7 @@ def classify_product(description, image_data=None):
         for r in similar_rulings
     ])
 
-    prompt = f"""You are an expert US customs classification specialist.
+    prompt = f"""You are an expert US customs classification specialist with knowledge of current tariff rates.
 Based on the following similar CBP rulings, classify this product.
 
 SIMILAR CBP RULINGS:
@@ -67,13 +87,17 @@ PRODUCT DESCRIPTION:
 Provide:
 1. HTS Code (10 digits)
 2. Confidence Level (High/Medium/Low)
-3. General duty rate (e.g. "Free", "3.5%", "6.7¢/kg") from the HTS
-4. Country-specific tariffs if country of origin is provided:
-   - Section 301 China tariff if applicable (e.g. "25% additional")
-   - Any other relevant trade program (USMCA free, GSP free, etc.)
-   - Total estimated duty rate combining general + additional tariffs
-5. Reasoning based on similar rulings
-6. Most relevant ruling numbers"""
+3. General duty rate from the HTS schedule (e.g. "Free", "3.5%", "6.7¢/kg")
+4. Country-specific tariffs based on country of origin if provided:
+   - Section 301 China tariffs if applicable (List 1/2/3/4A - specify rate)
+   - 2025 reciprocal/executive tariffs if applicable (note these are subject to change and some are paused)
+   - Any trade agreement benefits (USMCA free, KORUS FTA, CAFTA, etc.)
+   - Total estimated duty rate combining all applicable tariffs
+   - Note clearly if rates are currently in flux or subject to executive action
+5. Reasoning based on the similar CBP rulings provided
+6. Most relevant ruling numbers that support this classification
+
+Important: Be transparent about uncertainty on 2025 tariff rates as these have been subject to frequent executive action."""
 
     messages = []
     
@@ -94,7 +118,7 @@ Provide:
     response = openai_client.chat.completions.create(
         model="gpt-4o",
         messages=messages,
-        max_tokens=700
+        max_tokens=800
     )
     
     return response.choices[0].message.content, similar_rulings
@@ -140,6 +164,10 @@ country = st.selectbox("Country of Origin (optional)", [
     "Other"
 ])
 
+# Show tariff alert if applicable
+if country in TARIFF_ALERT_COUNTRIES:
+    st.warning(TARIFF_ALERT_COUNTRIES[country])
+
 image_file = st.file_uploader("Product Image (optional)", type=["jpg", "jpeg", "png"])
 
 if st.button("Classify Product", type="primary"):
@@ -179,4 +207,4 @@ if st.button("Classify Product", type="primary"):
                 st.warning("Thanks — we'll use this to improve.")
 
         st.divider()
-        st.caption("⚠️ This tool provides informational classifications only and does not constitute legal advice. Verify with a licensed customs broker for binding purposes.")
+        st.caption("⚠️ This tool provides informational classifications only and does not constitute legal advice. Tariff rates — particularly 2025 executive tariffs — are subject to frequent change. Always verify current rates with a licensed customs broker before making import decisions.")
