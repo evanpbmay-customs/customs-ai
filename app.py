@@ -94,10 +94,41 @@ description = st.text_area("Product Description",
     placeholder="Example: Bluetooth wireless earbuds with charging case, used for listening to music",
     height=120)
 
-country = st.selectbox("Country of Origin (optional)", 
-    ["Not specified", "China", "Mexico", "Canada", "Vietnam", "India", 
-     "Bangladesh", "Indonesia", "South Korea", "Japan", "Germany", 
-     "Taiwan", "Thailand", "Brazil", "Other"])
+country = st.selectbox("Country of Origin (optional)", [
+    "Not specified",
+    # Major tariff concern countries
+    "China (Section 301 tariffs apply)",
+    "Hong Kong (Section 301 tariffs apply)",
+    # USMCA free trade
+    "Mexico (USMCA - may qualify for free)",
+    "Canada (USMCA - may qualify for free)",
+    # Southeast Asia
+    "Vietnam", "Bangladesh", "Indonesia", "Cambodia", "Thailand",
+    "Myanmar", "Malaysia", "Philippines", "Sri Lanka", "Pakistan",
+    # East Asia
+    "South Korea (KORUS FTA - may qualify for free)",
+    "Japan", "Taiwan", "India",
+    # Europe
+    "Germany", "Italy", "France", "Spain", "Netherlands",
+    "United Kingdom", "Turkey",
+    # Americas
+    "Brazil", "Colombia", "Peru (FTA - may qualify for free)",
+    "Chile (FTA - may qualify for free)",
+    "Costa Rica (CAFTA - may qualify for free)",
+    "El Salvador (CAFTA - may qualify for free)",
+    "Guatemala (CAFTA - may qualify for free)",
+    "Honduras (CAFTA - may qualify for free)",
+    "Dominican Republic (CAFTA - may qualify for free)",
+    # Middle East / Africa
+    "Israel (FTA - may qualify for free)",
+    "Jordan (FTA - may qualify for free)",
+    "Morocco (FTA - may qualify for free)",
+    "South Africa",
+    "Ethiopia",
+    # Other
+    "Australia (FTA - may qualify for free)",
+    "Singapore (FTA - may qualify for free)",
+    "Other"
 
 image_file = st.file_uploader("Product Image (optional)", type=["jpg", "jpeg", "png"])
 
