@@ -2,6 +2,8 @@ import streamlit as st
 import os
 import re
 import base64
+import csv
+from datetime import datetime
 from dotenv import load_dotenv
 from openai import OpenAI
 from pinecone import Pinecone
@@ -19,6 +21,21 @@ def get_embedding(text):
         model="text-embedding-ada-002"
     )
     return response.data[0].embedding
+
+def save_feedback(description, country, classification, was_correct):
+    feedback = {
+        "timestamp": datetime.now().isoformat(),
+        "description": description,
+        "country": country,
+        "classification": classification[:200],
+        "was_correct": was_correct
+    }
+    file_exists = os.path.exists("feedback.csv")
+    with open("feedback.csv", "a", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=feedback.keys())
+        if not file_exists:
+            writer.writeheader()
+        writer.writerow(feedback)
 
 def classify_product(description, image_data=None):
     embedding = get_embedding(description)
@@ -96,39 +113,32 @@ description = st.text_area("Product Description",
 
 country = st.selectbox("Country of Origin (optional)", [
     "Not specified",
-    # Major tariff concern countries
     "China (Section 301 tariffs apply)",
     "Hong Kong (Section 301 tariffs apply)",
-    # USMCA free trade
     "Mexico (USMCA - may qualify for free)",
     "Canada (USMCA - may qualify for free)",
-    # Southeast Asia
     "Vietnam", "Bangladesh", "Indonesia", "Cambodia", "Thailand",
     "Myanmar", "Malaysia", "Philippines", "Sri Lanka", "Pakistan",
-    # East Asia
     "South Korea (KORUS FTA - may qualify for free)",
     "Japan", "Taiwan", "India",
-    # Europe
     "Germany", "Italy", "France", "Spain", "Netherlands",
     "United Kingdom", "Turkey",
-    # Americas
-    "Brazil", "Colombia", "Peru (FTA - may qualify for free)",
+    "Brazil", "Colombia",
+    "Peru (FTA - may qualify for free)",
     "Chile (FTA - may qualify for free)",
     "Costa Rica (CAFTA - may qualify for free)",
     "El Salvador (CAFTA - may qualify for free)",
     "Guatemala (CAFTA - may qualify for free)",
     "Honduras (CAFTA - may qualify for free)",
     "Dominican Republic (CAFTA - may qualify for free)",
-    # Middle East / Africa
     "Israel (FTA - may qualify for free)",
     "Jordan (FTA - may qualify for free)",
     "Morocco (FTA - may qualify for free)",
-    "South Africa",
-    "Ethiopia",
-    # Other
+    "South Africa", "Ethiopia",
     "Australia (FTA - may qualify for free)",
     "Singapore (FTA - may qualify for free)",
     "Other"
+])
 
 image_file = st.file_uploader("Product Image (optional)", type=["jpg", "jpeg", "png"])
 
@@ -155,6 +165,18 @@ if st.button("Classify Product", type="primary"):
         st.markdown("### Similar CBP Rulings Used")
         for r in similar_rulings:
             st.markdown(f"- [{r['ruling_number']}]({r['url']}) — similarity: {r['similarity']}")
-        
+
+        st.divider()
+        st.markdown("### Was this classification correct?")
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.button("✅ Yes, correct"):
+                save_feedback(description, country, classification, True)
+                st.success("Thanks for the feedback!")
+        with col2:
+            if st.button("❌ No, incorrect"):
+                save_feedback(description, country, classification, False)
+                st.warning("Thanks — we'll use this to improve.")
+
         st.divider()
         st.caption("⚠️ This tool provides informational classifications only and does not constitute legal advice. Verify with a licensed customs broker for binding purposes.")
