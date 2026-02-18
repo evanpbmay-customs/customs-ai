@@ -1,0 +1,1 @@
+openai pinecone langchain langchain-openai langchain-pinecone streamlit beautifulsoup4 requests python-dotenv 
