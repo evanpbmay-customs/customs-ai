@@ -1,6 +1,5 @@
 import streamlit as st
 import os
-import re
 import base64
 import csv
 from datetime import datetime
@@ -45,66 +44,61 @@ def check_password():
             st.session_state["password_correct"] = False
 
     if "password_correct" not in st.session_state:
-        _render_landing()
+        render_landing()
         return False
     elif not st.session_state["password_correct"]:
-        _render_landing()
+        render_landing()
         st.error("Incorrect password. Contact us for access.")
         return False
     return True
 
-def _render_landing():
+def render_landing():
     st.markdown("""
-    <div style='text-align: center; padding: 40px 0 10px 0; border-bottom: 3px solid #002B5C; margin-bottom: 32px;'>
-        <div style='font-size: 48px; margin-bottom: 8px;'>🛃</div>
-        <h1 style='font-family: Merriweather, Georgia, serif; font-size: 2.4em; color: #002B5C; margin: 0;'>
-            Customs Classifier
-        </h1>
-        <p style='color: #555; font-size: 1.05em; margin-top: 8px; font-weight: 300;'>
-            AI-powered HTS classification backed by real CBP rulings
-        </p>
-    </div>
-
-    <div style='max-width: 640px; margin: 0 auto; padding: 0 16px;'>
-
-        <div style='display: flex; gap: 16px; margin: 32px 0; flex-wrap: wrap;'>
-            <div style='flex: 1; min-width: 160px; background: #f9f9f9; border-top: 3px solid #002B5C; padding: 20px; border-radius: 2px;'>
-                <div style='font-size: 1.6em;'>📋</div>
-                <div style='font-family: Merriweather, serif; font-weight: 700; color: #002B5C; margin: 8px 0 4px;'>HTS Classification</div>
-                <div style='font-size: 0.88em; color: #666;'>10-digit codes with confidence levels, backed by real CBP precedent rulings.</div>
-            </div>
-            <div style='flex: 1; min-width: 160px; background: #f9f9f9; border-top: 3px solid #C9A84C; padding: 20px; border-radius: 2px;'>
-                <div style='font-size: 1.6em;'>💰</div>
-                <div style='font-family: Merriweather, serif; font-weight: 700; color: #002B5C; margin: 8px 0 4px;'>Duty Rate Lookup</div>
-                <div style='font-size: 0.88em; color: #666;'>General rates plus Section 301, 2025 executive tariffs, and FTA benefits by country.</div>
-            </div>
-            <div style='flex: 1; min-width: 160px; background: #f9f9f9; border-top: 3px solid #002B5C; padding: 20px; border-radius: 2px;'>
-                <div style='font-size: 1.6em;'>💬</div>
-                <div style='font-family: Merriweather, serif; font-weight: 700; color: #002B5C; margin: 8px 0 4px;'>Ask Follow-ups</div>
-                <div style='font-size: 0.88em; color: #666;'>Ask about documentation, ADD/CVD, bonding requirements and more after each classification.</div>
-            </div>
-        </div>
-
-        <div style='background: #002B5C; color: white; padding: 28px; border-radius: 2px; margin: 32px 0; text-align: center;'>
-            <div style='font-family: Merriweather, serif; font-size: 1.3em; margin-bottom: 6px;'>$49 <span style='font-size: 0.6em; font-weight: 300;'>/ month</span></div>
-            <div style='font-size: 0.85em; color: #C9A84C; letter-spacing: 1px; text-transform: uppercase; font-weight: 600;'>Unlimited Classifications</div>
-            <div style='font-size: 0.82em; color: #aac; margin-top: 10px;'>Contact <a href='mailto:customsclassifier@gmail.com' style='color: #C9A84C;'>customsclassifier@gmail.com</a> to get access</div>
-        </div>
-
-        <div style='border: 1px solid #e0e0e0; padding: 24px; border-radius: 2px; margin: 24px 0;'>
-            <div style='font-family: Source Sans 3, sans-serif; font-size: 0.72em; font-weight: 600; letter-spacing: 1.8px; text-transform: uppercase; color: #002B5C; margin-bottom: 14px;'>Subscriber Login</div>
-    """, unsafe_allow_html=True)
-    
-    st.text_input("Access Password", type="password", 
-                  on_change=lambda: _do_password_check(), key="password",
-                  placeholder="Enter your access password")
-    
-    st.markdown("""
-        </div>
+    <div style='text-align:center; padding: 32px 0 16px 0; border-bottom: 3px solid #002B5C; margin-bottom: 28px;'>
+        <div style='font-size:44px;'>🛃</div>
+        <h1 style='font-family: Georgia, serif; font-size: 2.3em; color: #002B5C; margin: 8px 0 0 0;'>Customs Classifier</h1>
+        <p style='color: #555; font-size: 1em; margin-top: 6px; font-weight: 300;'>AI-powered HTS classification backed by real CBP rulings</p>
     </div>
     """, unsafe_allow_html=True)
 
-def _do_password_check():
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        st.markdown("""
+        <div style='background:#f9f9f9; border-top:3px solid #002B5C; padding:18px; border-radius:2px; height:140px;'>
+            <div style='font-size:1.4em;'>📋</div>
+            <div style='font-family:Georgia,serif; font-weight:700; color:#002B5C; margin:6px 0 4px; font-size:0.95em;'>HTS Classification</div>
+            <div style='font-size:0.82em; color:#666;'>10-digit codes with confidence levels, backed by real CBP rulings.</div>
+        </div>
+        """, unsafe_allow_html=True)
+    with col2:
+        st.markdown("""
+        <div style='background:#f9f9f9; border-top:3px solid #C9A84C; padding:18px; border-radius:2px; height:140px;'>
+            <div style='font-size:1.4em;'>💰</div>
+            <div style='font-family:Georgia,serif; font-weight:700; color:#002B5C; margin:6px 0 4px; font-size:0.95em;'>Duty Rate Lookup</div>
+            <div style='font-size:0.82em; color:#666;'>General rates plus Section 301, 2025 tariffs, and FTA benefits.</div>
+        </div>
+        """, unsafe_allow_html=True)
+    with col3:
+        st.markdown("""
+        <div style='background:#f9f9f9; border-top:3px solid #002B5C; padding:18px; border-radius:2px; height:140px;'>
+            <div style='font-size:1.4em;'>💬</div>
+            <div style='font-family:Georgia,serif; font-weight:700; color:#002B5C; margin:6px 0 4px; font-size:0.95em;'>Ask Follow-ups</div>
+            <div style='font-size:0.82em; color:#666;'>Ask about docs, ADD/CVD, bonding and more after each classification.</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    st.markdown("""
+    <div style='background:#002B5C; color:white; padding:24px; border-radius:2px; margin:28px 0 20px 0; text-align:center;'>
+        <div style='font-family:Georgia,serif; font-size:1.5em; margin-bottom:4px;'>$49 <span style='font-size:0.55em; font-weight:300;'>/ month</span></div>
+        <div style='font-size:0.8em; color:#C9A84C; letter-spacing:1px; text-transform:uppercase; font-weight:600;'>Unlimited Classifications</div>
+        <div style='font-size:0.8em; color:#aac; margin-top:8px;'>Email <a href='mailto:customsclassifier@gmail.com' style='color:#C9A84C;'>customsclassifier@gmail.com</a> to get access</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("<div style='font-family:sans-serif; font-size:0.72em; font-weight:600; letter-spacing:1.8px; text-transform:uppercase; color:#002B5C; margin-bottom:6px;'>Subscriber Login</div>", unsafe_allow_html=True)
+    st.text_input("Access Password", type="password", on_change=password_entered, key="password", placeholder="Enter your access password", label_visibility="collapsed")
+
+def password_entered():
     if st.session_state["password"] == os.getenv("APP_PASSWORD", "customs2026"):
         st.session_state["password_correct"] = True
         del st.session_state["password"]
@@ -207,7 +201,7 @@ CLASSIFICATION RESULT:
 The user now has a follow-up question:
 {question}
 
-Answer concisely and practically. If you reference specific regulations, name them. 
+Answer concisely and practically. If you reference specific regulations, name them.
 If you're uncertain, say so clearly rather than guessing."""
 
     response = openai_client.chat.completions.create(
@@ -220,154 +214,26 @@ If you're uncertain, say so clearly rather than guessing."""
 # Page config
 st.set_page_config(page_title="Customs Classifier AI", page_icon="🛃", layout="centered")
 
-# CSS
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Source+Sans+3:wght@300;400;500;600&display=swap');
-    
     .stApp { background-color: #ffffff; }
-
-    .block-container {
-        padding-left: 1rem !important;
-        padding-right: 1rem !important;
-        max-width: 860px !important;
-    }
-    
-    .main-header {
-        text-align: center;
-        padding: 32px 0 16px 0;
-        border-bottom: 3px solid #002B5C;
-        margin-bottom: 28px;
-    }
-    
-    .main-header h1 {
-        font-family: 'Merriweather', Georgia, serif;
-        font-size: clamp(1.6em, 5vw, 2.4em);
-        color: #002B5C;
-        margin: 0;
-    }
-    
-    .main-header p {
-        font-family: 'Source Sans 3', sans-serif;
-        color: #555;
-        font-size: clamp(0.9em, 3vw, 1.05em);
-        margin-top: 8px;
-        font-weight: 300;
-    }
-    
-    .badge-row {
-        display: flex;
-        justify-content: center;
-        gap: 8px;
-        margin: 14px 0 4px 0;
-        flex-wrap: wrap;
-    }
-    
-    .badge {
-        background: #002B5C;
-        color: #C9A84C;
-        font-family: 'Source Sans 3', sans-serif;
-        font-size: clamp(0.62em, 2vw, 0.72em);
-        font-weight: 600;
-        padding: 4px 10px;
-        border-radius: 2px;
-        letter-spacing: 1px;
-        text-transform: uppercase;
-    }
-
-    .result-box {
-        background: #f9f9f9;
-        border-left: 4px solid #C9A84C;
-        border-top: 1px solid #e0e0e0;
-        border-right: 1px solid #e0e0e0;
-        border-bottom: 1px solid #e0e0e0;
-        border-radius: 2px;
-        padding: 20px;
-        margin: 12px 0;
-        box-shadow: 0 1px 4px rgba(0,0,0,0.05);
-        font-family: 'Source Sans 3', sans-serif;
-        color: #222;
-        line-height: 1.7;
-        font-size: clamp(0.88em, 2.5vw, 1em);
-        word-wrap: break-word;
-    }
-
-    .followup-box {
-        background: #f0f4f9;
-        border-left: 4px solid #002B5C;
-        border-top: 1px solid #d0dce8;
-        border-right: 1px solid #d0dce8;
-        border-bottom: 1px solid #d0dce8;
-        border-radius: 2px;
-        padding: 20px;
-        margin: 12px 0;
-        font-family: 'Source Sans 3', sans-serif;
-        color: #222;
-        line-height: 1.7;
-        font-size: clamp(0.88em, 2.5vw, 1em);
-    }
-    
-    .ruling-item {
-        font-family: 'Source Sans 3', sans-serif;
-        font-size: clamp(0.82em, 2.5vw, 0.9em);
-        color: #333;
-        padding: 7px 0;
-        border-bottom: 1px solid #f0f0f0;
-        word-wrap: break-word;
-    }
-    
-    .section-label {
-        font-family: 'Source Sans 3', sans-serif;
-        font-size: 0.72em;
-        font-weight: 600;
-        letter-spacing: 1.8px;
-        text-transform: uppercase;
-        color: #002B5C;
-        margin-bottom: 6px;
-        margin-top: 20px;
-    }
-
-    .stButton > button {
-        background-color: #002B5C !important;
-        color: #C9A84C !important;
-        border: none !important;
-        font-family: 'Source Sans 3', sans-serif !important;
-        font-weight: 600 !important;
-        letter-spacing: 1.2px !important;
-        text-transform: uppercase !important;
-        padding: 12px 24px !important;
-        border-radius: 2px !important;
-        font-size: 0.85em !important;
-        transition: all 0.2s ease !important;
-        width: 100% !important;
-    }
-    
-    .stButton > button:hover {
-        background-color: #C9A84C !important;
-        color: #002B5C !important;
-    }
-
-    a { color: #002B5C !important; }
-    a:hover { color: #C9A84C !important; }
-
-    .footer-note {
-        text-align: center;
-        padding: 24px 0 8px 0;
-        font-family: 'Source Sans 3', sans-serif;
-        font-size: 0.78em;
-        color: #aaa;
-        border-top: 1px solid #e0e0e0;
-        margin-top: 32px;
-        line-height: 1.6;
-    }
-
-    @media (max-width: 640px) {
-        [data-testid="column"] {
-            width: 100% !important;
-            flex: 1 1 100% !important;
-            min-width: 100% !important;
-        }
-    }
+    .block-container { padding-left: 1rem !important; padding-right: 1rem !important; max-width: 860px !important; }
+    .main-header { text-align:center; padding:32px 0 16px 0; border-bottom:3px solid #002B5C; margin-bottom:28px; }
+    .main-header h1 { font-family:'Merriweather',Georgia,serif; font-size:clamp(1.6em,5vw,2.4em); color:#002B5C; margin:0; }
+    .main-header p { font-family:'Source Sans 3',sans-serif; color:#555; font-size:clamp(0.9em,3vw,1.05em); margin-top:8px; font-weight:300; }
+    .badge-row { display:flex; justify-content:center; gap:8px; margin:14px 0 4px 0; flex-wrap:wrap; }
+    .badge { background:#002B5C; color:#C9A84C; font-family:'Source Sans 3',sans-serif; font-size:clamp(0.62em,2vw,0.72em); font-weight:600; padding:4px 10px; border-radius:2px; letter-spacing:1px; text-transform:uppercase; }
+    .result-box { background:#f9f9f9; border-left:4px solid #C9A84C; border-top:1px solid #e0e0e0; border-right:1px solid #e0e0e0; border-bottom:1px solid #e0e0e0; border-radius:2px; padding:20px; margin:12px 0; box-shadow:0 1px 4px rgba(0,0,0,0.05); font-family:'Source Sans 3',sans-serif; color:#222; line-height:1.7; font-size:clamp(0.88em,2.5vw,1em); word-wrap:break-word; }
+    .followup-box { background:#f0f4f9; border-left:4px solid #002B5C; border-top:1px solid #d0dce8; border-right:1px solid #d0dce8; border-bottom:1px solid #d0dce8; border-radius:2px; padding:20px; margin:12px 0; font-family:'Source Sans 3',sans-serif; color:#222; line-height:1.7; font-size:clamp(0.88em,2.5vw,1em); }
+    .ruling-item { font-family:'Source Sans 3',sans-serif; font-size:clamp(0.82em,2.5vw,0.9em); color:#333; padding:7px 0; border-bottom:1px solid #f0f0f0; word-wrap:break-word; }
+    .section-label { font-family:'Source Sans 3',sans-serif; font-size:0.72em; font-weight:600; letter-spacing:1.8px; text-transform:uppercase; color:#002B5C; margin-bottom:6px; margin-top:20px; }
+    .stButton > button { background-color:#002B5C !important; color:#C9A84C !important; border:none !important; font-family:'Source Sans 3',sans-serif !important; font-weight:600 !important; letter-spacing:1.2px !important; text-transform:uppercase !important; padding:12px 24px !important; border-radius:2px !important; font-size:0.85em !important; transition:all 0.2s ease !important; width:100% !important; }
+    .stButton > button:hover { background-color:#C9A84C !important; color:#002B5C !important; }
+    a { color:#002B5C !important; }
+    a:hover { color:#C9A84C !important; }
+    .footer-note { text-align:center; padding:24px 0 8px 0; font-family:'Source Sans 3',sans-serif; font-size:0.78em; color:#aaa; border-top:1px solid #e0e0e0; margin-top:32px; line-height:1.6; }
+    @media (max-width: 640px) { [data-testid="column"] { width:100% !important; flex:1 1 100% !important; min-width:100% !important; } }
 </style>
 """, unsafe_allow_html=True)
 
@@ -388,12 +254,10 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# Inputs
 st.markdown("<div class='section-label'>Product Description</div>", unsafe_allow_html=True)
 description = st.text_area("",
     placeholder="Describe the product in detail — material, function, use case. Example: Bluetooth wireless earbuds with charging case, made of plastic and silicone, used for listening to music.",
-    height=120,
-    label_visibility="collapsed")
+    height=120, label_visibility="collapsed")
 
 st.markdown("<div class='section-label'>Country of Origin</div>", unsafe_allow_html=True)
 country = st.selectbox("", [
@@ -407,8 +271,7 @@ country = st.selectbox("", [
     "South Korea (KORUS FTA - may qualify for free)",
     "Japan", "Taiwan", "India",
     "Germany", "Italy", "France", "Spain", "Netherlands",
-    "United Kingdom", "Turkey",
-    "Brazil", "Colombia",
+    "United Kingdom", "Turkey", "Brazil", "Colombia",
     "Peru (FTA - may qualify for free)",
     "Chile (FTA - may qualify for free)",
     "Costa Rica (CAFTA - may qualify for free)",
@@ -442,20 +305,18 @@ if classify_btn:
             image_data = None
             if image_file:
                 image_data = base64.b64encode(image_file.read()).decode('utf-8')
-            
             full_description = description
             if country != "Not specified":
                 full_description = f"{description}\n\nCountry of Origin: {country}"
-            
             classification, similar_rulings = classify_product(full_description, image_data)
-        
+
         st.session_state["last_classification"] = classification
         st.session_state["last_description"] = description
         st.session_state["last_country"] = country
 
         st.markdown("<div class='section-label'>Classification Result</div>", unsafe_allow_html=True)
         st.markdown(f"<div class='result-box'>{classification}</div>", unsafe_allow_html=True)
-        
+
         st.markdown("<div class='section-label'>Supporting CBP Rulings</div>", unsafe_allow_html=True)
         for r in similar_rulings:
             st.markdown(f"<div class='ruling-item'>📄 <a href='{r['url']}' target='_blank'>{r['ruling_number']}</a> — similarity score: {r['similarity']}</div>", unsafe_allow_html=True)
@@ -478,20 +339,12 @@ if classify_btn:
         </div>
         """, unsafe_allow_html=True)
 
-# Follow-up question section
 if "last_classification" in st.session_state:
     st.markdown("<div class='section-label'>Ask a Follow-up Question</div>", unsafe_allow_html=True)
-    st.markdown("<div style='font-family: Source Sans 3, sans-serif; font-size: 0.88em; color: #666; margin-bottom: 8px;'>Examples: \"What import documents do I need?\" · \"Is this subject to ADD/CVD?\" · \"What is the de minimis threshold?\" · \"Do I need a customs bond?\"</div>", unsafe_allow_html=True)
-    
-    followup = st.text_input("", placeholder="Ask anything about this classification...", label_visibility="collapsed")
-    
+    st.markdown("<div style='font-family:sans-serif; font-size:0.85em; color:#666; margin-bottom:8px;'>Examples: \"What import documents do I need?\" · \"Is this subject to ADD/CVD?\" · \"Do I need a customs bond?\"</div>", unsafe_allow_html=True)
+    followup = st.text_input("", placeholder="Ask anything about this classification...", label_visibility="collapsed", key="followup_input")
     if st.button("Ask →", use_container_width=True):
         if followup:
             with st.spinner("Researching your question..."):
-                answer = ask_followup(
-                    followup,
-                    st.session_state["last_classification"],
-                    st.session_state["last_description"],
-                    st.session_state["last_country"]
-                )
+                answer = ask_followup(followup, st.session_state["last_classification"], st.session_state["last_description"], st.session_state["last_country"])
             st.markdown(f"<div class='followup-box'>{answer}</div>", unsafe_allow_html=True)
