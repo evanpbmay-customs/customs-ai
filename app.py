@@ -45,33 +45,71 @@ def check_password():
             st.session_state["password_correct"] = False
 
     if "password_correct" not in st.session_state:
-        _render_login()
-        st.text_input("Access Password", type="password", on_change=password_entered, key="password")
+        _render_landing()
         return False
     elif not st.session_state["password_correct"]:
-        _render_login()
-        st.text_input("Access Password", type="password", on_change=password_entered, key="password")
+        _render_landing()
         st.error("Incorrect password. Contact us for access.")
         return False
     return True
 
-def _render_login():
+def _render_landing():
     st.markdown("""
-    <div style='text-align: center; padding: 60px 0 20px 0;'>
+    <div style='text-align: center; padding: 40px 0 10px 0; border-bottom: 3px solid #002B5C; margin-bottom: 32px;'>
         <div style='font-size: 48px; margin-bottom: 8px;'>🛃</div>
-        <h1 style='font-family: Merriweather, Georgia, serif; font-size: 2.2em; color: #002B5C; margin: 0;'>
+        <h1 style='font-family: Merriweather, Georgia, serif; font-size: 2.4em; color: #002B5C; margin: 0;'>
             Customs Classifier
         </h1>
-        <p style='color: #555; font-size: 1em; margin-top: 8px; font-weight: 300;'>
+        <p style='color: #555; font-size: 1.05em; margin-top: 8px; font-weight: 300;'>
             AI-powered HTS classification backed by real CBP rulings
         </p>
-        <hr style='border: 1px solid #002B5C; margin: 30px auto; width: 60%;'>
-        <p style='color: #777; font-size: 0.9em;'>
-            This tool is available by subscription.<br>
-            Contact <a href='mailto:customsclassifier@gmail.com' style='color: #C9A84C;'>customsclassifier@gmail.com</a> to request access.
-        </p>
+    </div>
+
+    <div style='max-width: 640px; margin: 0 auto; padding: 0 16px;'>
+
+        <div style='display: flex; gap: 16px; margin: 32px 0; flex-wrap: wrap;'>
+            <div style='flex: 1; min-width: 160px; background: #f9f9f9; border-top: 3px solid #002B5C; padding: 20px; border-radius: 2px;'>
+                <div style='font-size: 1.6em;'>📋</div>
+                <div style='font-family: Merriweather, serif; font-weight: 700; color: #002B5C; margin: 8px 0 4px;'>HTS Classification</div>
+                <div style='font-size: 0.88em; color: #666;'>10-digit codes with confidence levels, backed by real CBP precedent rulings.</div>
+            </div>
+            <div style='flex: 1; min-width: 160px; background: #f9f9f9; border-top: 3px solid #C9A84C; padding: 20px; border-radius: 2px;'>
+                <div style='font-size: 1.6em;'>💰</div>
+                <div style='font-family: Merriweather, serif; font-weight: 700; color: #002B5C; margin: 8px 0 4px;'>Duty Rate Lookup</div>
+                <div style='font-size: 0.88em; color: #666;'>General rates plus Section 301, 2025 executive tariffs, and FTA benefits by country.</div>
+            </div>
+            <div style='flex: 1; min-width: 160px; background: #f9f9f9; border-top: 3px solid #002B5C; padding: 20px; border-radius: 2px;'>
+                <div style='font-size: 1.6em;'>💬</div>
+                <div style='font-family: Merriweather, serif; font-weight: 700; color: #002B5C; margin: 8px 0 4px;'>Ask Follow-ups</div>
+                <div style='font-size: 0.88em; color: #666;'>Ask about documentation, ADD/CVD, bonding requirements and more after each classification.</div>
+            </div>
+        </div>
+
+        <div style='background: #002B5C; color: white; padding: 28px; border-radius: 2px; margin: 32px 0; text-align: center;'>
+            <div style='font-family: Merriweather, serif; font-size: 1.3em; margin-bottom: 6px;'>$49 <span style='font-size: 0.6em; font-weight: 300;'>/ month</span></div>
+            <div style='font-size: 0.85em; color: #C9A84C; letter-spacing: 1px; text-transform: uppercase; font-weight: 600;'>Unlimited Classifications</div>
+            <div style='font-size: 0.82em; color: #aac; margin-top: 10px;'>Contact <a href='mailto:customsclassifier@gmail.com' style='color: #C9A84C;'>customsclassifier@gmail.com</a> to get access</div>
+        </div>
+
+        <div style='border: 1px solid #e0e0e0; padding: 24px; border-radius: 2px; margin: 24px 0;'>
+            <div style='font-family: Source Sans 3, sans-serif; font-size: 0.72em; font-weight: 600; letter-spacing: 1.8px; text-transform: uppercase; color: #002B5C; margin-bottom: 14px;'>Subscriber Login</div>
+    """, unsafe_allow_html=True)
+    
+    st.text_input("Access Password", type="password", 
+                  on_change=lambda: _do_password_check(), key="password",
+                  placeholder="Enter your access password")
+    
+    st.markdown("""
+        </div>
     </div>
     """, unsafe_allow_html=True)
+
+def _do_password_check():
+    if st.session_state["password"] == os.getenv("APP_PASSWORD", "customs2026"):
+        st.session_state["password_correct"] = True
+        del st.session_state["password"]
+    else:
+        st.session_state["password_correct"] = False
 
 def get_embedding(text):
     response = openai_client.embeddings.create(
@@ -156,6 +194,29 @@ Be transparent about uncertainty on 2025 tariff rates."""
     
     return response.choices[0].message.content, similar_rulings
 
+def ask_followup(question, classification, description, country):
+    prompt = f"""You are an expert US customs and trade compliance specialist.
+
+A product was just classified with the following result:
+
+PRODUCT: {description}
+COUNTRY OF ORIGIN: {country}
+CLASSIFICATION RESULT:
+{classification}
+
+The user now has a follow-up question:
+{question}
+
+Answer concisely and practically. If you reference specific regulations, name them. 
+If you're uncertain, say so clearly rather than guessing."""
+
+    response = openai_client.chat.completions.create(
+        model="gpt-4o",
+        messages=[{"role": "user", "content": prompt}],
+        max_tokens=600
+    )
+    return response.choices[0].message.content
+
 # Page config
 st.set_page_config(page_title="Customs Classifier AI", page_icon="🛃", layout="centered")
 
@@ -164,11 +225,8 @@ st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Source+Sans+3:wght@300;400;500;600&display=swap');
     
-    .stApp {
-        background-color: #ffffff;
-    }
+    .stApp { background-color: #ffffff; }
 
-    /* Mobile padding fix */
     .block-container {
         padding-left: 1rem !important;
         padding-right: 1rem !important;
@@ -187,7 +245,6 @@ st.markdown("""
         font-size: clamp(1.6em, 5vw, 2.4em);
         color: #002B5C;
         margin: 0;
-        letter-spacing: -0.5px;
     }
     
     .main-header p {
@@ -233,7 +290,21 @@ st.markdown("""
         line-height: 1.7;
         font-size: clamp(0.88em, 2.5vw, 1em);
         word-wrap: break-word;
-        overflow-wrap: break-word;
+    }
+
+    .followup-box {
+        background: #f0f4f9;
+        border-left: 4px solid #002B5C;
+        border-top: 1px solid #d0dce8;
+        border-right: 1px solid #d0dce8;
+        border-bottom: 1px solid #d0dce8;
+        border-radius: 2px;
+        padding: 20px;
+        margin: 12px 0;
+        font-family: 'Source Sans 3', sans-serif;
+        color: #222;
+        line-height: 1.7;
+        font-size: clamp(0.88em, 2.5vw, 1em);
     }
     
     .ruling-item {
@@ -276,13 +347,8 @@ st.markdown("""
         color: #002B5C !important;
     }
 
-    a {
-        color: #002B5C !important;
-    }
-    
-    a:hover {
-        color: #C9A84C !important;
-    }
+    a { color: #002B5C !important; }
+    a:hover { color: #C9A84C !important; }
 
     .footer-note {
         text-align: center;
@@ -295,15 +361,11 @@ st.markdown("""
         line-height: 1.6;
     }
 
-    /* Mobile: stack columns */
     @media (max-width: 640px) {
         [data-testid="column"] {
             width: 100% !important;
             flex: 1 1 100% !important;
             min-width: 100% !important;
-        }
-        .badge-row {
-            gap: 6px;
         }
     }
 </style>
@@ -387,6 +449,10 @@ if classify_btn:
             
             classification, similar_rulings = classify_product(full_description, image_data)
         
+        st.session_state["last_classification"] = classification
+        st.session_state["last_description"] = description
+        st.session_state["last_country"] = country
+
         st.markdown("<div class='section-label'>Classification Result</div>", unsafe_allow_html=True)
         st.markdown(f"<div class='result-box'>{classification}</div>", unsafe_allow_html=True)
         
@@ -411,3 +477,21 @@ if classify_btn:
             Tariff data last updated: {TARIFF_LAST_UPDATED} · Always verify with a licensed customs broker before making import decisions.
         </div>
         """, unsafe_allow_html=True)
+
+# Follow-up question section
+if "last_classification" in st.session_state:
+    st.markdown("<div class='section-label'>Ask a Follow-up Question</div>", unsafe_allow_html=True)
+    st.markdown("<div style='font-family: Source Sans 3, sans-serif; font-size: 0.88em; color: #666; margin-bottom: 8px;'>Examples: \"What import documents do I need?\" · \"Is this subject to ADD/CVD?\" · \"What is the de minimis threshold?\" · \"Do I need a customs bond?\"</div>", unsafe_allow_html=True)
+    
+    followup = st.text_input("", placeholder="Ask anything about this classification...", label_visibility="collapsed")
+    
+    if st.button("Ask →", use_container_width=True):
+        if followup:
+            with st.spinner("Researching your question..."):
+                answer = ask_followup(
+                    followup,
+                    st.session_state["last_classification"],
+                    st.session_state["last_description"],
+                    st.session_state["last_country"]
+                )
+            st.markdown(f"<div class='followup-box'>{answer}</div>", unsafe_allow_html=True)
