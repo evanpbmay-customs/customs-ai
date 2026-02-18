@@ -59,14 +59,14 @@ def _render_login():
     st.markdown("""
     <div style='text-align: center; padding: 60px 0 20px 0;'>
         <div style='font-size: 48px; margin-bottom: 8px;'>🛃</div>
-        <h1 style='font-family: Merriweather, Georgia, serif; font-size: 2.4em; color: #002B5C; margin: 0;'>
+        <h1 style='font-family: Merriweather, Georgia, serif; font-size: 2.2em; color: #002B5C; margin: 0;'>
             Customs Classifier
         </h1>
-        <p style='color: #555; font-size: 1.05em; margin-top: 8px; font-weight: 300;'>
+        <p style='color: #555; font-size: 1em; margin-top: 8px; font-weight: 300;'>
             AI-powered HTS classification backed by real CBP rulings
         </p>
         <hr style='border: 1px solid #002B5C; margin: 30px auto; width: 60%;'>
-        <p style='color: #777; font-size: 0.95em;'>
+        <p style='color: #777; font-size: 0.9em;'>
             This tool is available by subscription.<br>
             Contact <a href='mailto:customsclassifier@gmail.com' style='color: #C9A84C;'>customsclassifier@gmail.com</a> to request access.
         </p>
@@ -167,17 +167,24 @@ st.markdown("""
     .stApp {
         background-color: #ffffff;
     }
+
+    /* Mobile padding fix */
+    .block-container {
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+        max-width: 860px !important;
+    }
     
     .main-header {
         text-align: center;
-        padding: 40px 0 16px 0;
+        padding: 32px 0 16px 0;
         border-bottom: 3px solid #002B5C;
-        margin-bottom: 32px;
+        margin-bottom: 28px;
     }
     
     .main-header h1 {
         font-family: 'Merriweather', Georgia, serif;
-        font-size: 2.4em;
+        font-size: clamp(1.6em, 5vw, 2.4em);
         color: #002B5C;
         margin: 0;
         letter-spacing: -0.5px;
@@ -186,7 +193,7 @@ st.markdown("""
     .main-header p {
         font-family: 'Source Sans 3', sans-serif;
         color: #555;
-        font-size: 1.05em;
+        font-size: clamp(0.9em, 3vw, 1.05em);
         margin-top: 8px;
         font-weight: 300;
     }
@@ -194,7 +201,7 @@ st.markdown("""
     .badge-row {
         display: flex;
         justify-content: center;
-        gap: 12px;
+        gap: 8px;
         margin: 14px 0 4px 0;
         flex-wrap: wrap;
     }
@@ -203,11 +210,11 @@ st.markdown("""
         background: #002B5C;
         color: #C9A84C;
         font-family: 'Source Sans 3', sans-serif;
-        font-size: 0.72em;
+        font-size: clamp(0.62em, 2vw, 0.72em);
         font-weight: 600;
-        padding: 4px 14px;
+        padding: 4px 10px;
         border-radius: 2px;
-        letter-spacing: 1.2px;
+        letter-spacing: 1px;
         text-transform: uppercase;
     }
 
@@ -218,20 +225,24 @@ st.markdown("""
         border-right: 1px solid #e0e0e0;
         border-bottom: 1px solid #e0e0e0;
         border-radius: 2px;
-        padding: 24px;
+        padding: 20px;
         margin: 12px 0;
         box-shadow: 0 1px 4px rgba(0,0,0,0.05);
         font-family: 'Source Sans 3', sans-serif;
         color: #222;
         line-height: 1.7;
+        font-size: clamp(0.88em, 2.5vw, 1em);
+        word-wrap: break-word;
+        overflow-wrap: break-word;
     }
     
     .ruling-item {
         font-family: 'Source Sans 3', sans-serif;
-        font-size: 0.9em;
+        font-size: clamp(0.82em, 2.5vw, 0.9em);
         color: #333;
         padding: 7px 0;
         border-bottom: 1px solid #f0f0f0;
+        word-wrap: break-word;
     }
     
     .section-label {
@@ -253,10 +264,11 @@ st.markdown("""
         font-weight: 600 !important;
         letter-spacing: 1.2px !important;
         text-transform: uppercase !important;
-        padding: 12px 32px !important;
+        padding: 12px 24px !important;
         border-radius: 2px !important;
         font-size: 0.85em !important;
         transition: all 0.2s ease !important;
+        width: 100% !important;
     }
     
     .stButton > button:hover {
@@ -280,6 +292,19 @@ st.markdown("""
         color: #aaa;
         border-top: 1px solid #e0e0e0;
         margin-top: 32px;
+        line-height: 1.6;
+    }
+
+    /* Mobile: stack columns */
+    @media (max-width: 640px) {
+        [data-testid="column"] {
+            width: 100% !important;
+            flex: 1 1 100% !important;
+            min-width: 100% !important;
+        }
+        .badge-row {
+            gap: 6px;
+        }
     }
 </style>
 """, unsafe_allow_html=True)
