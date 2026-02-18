@@ -204,10 +204,10 @@ You may ONLY answer questions in these categories:
 - Country of origin marking requirements (19 CFR Part 134)
 - HTS classification methodology questions
 
-If the question is outside these categories, or if it involves specific dollar thresholds, rates, or rules that change frequently (such as de minimis thresholds, current tariff rates, or recent executive orders), respond with exactly:
-"This question involves information that changes frequently and is outside the scope of what I can reliably answer. Please verify with a licensed customs broker or at cbp.gov."
+If the question is outside these categories, or involves specific dollar thresholds, rates, or rules that change frequently, respond with:
+This question involves information that changes frequently and is outside the scope of what I can reliably answer. Please verify with a licensed customs broker or at cbp.gov.
 
-Do NOT guess or provide outdated information. It is better to decline than to answer incorrectly.
+Do NOT include quotation marks in your response. Do NOT guess or provide outdated information. It is better to decline than to answer incorrectly.
 Answer concisely and practically. Name specific regulations where relevant."""
 
     response = openai_client.chat.completions.create(
@@ -243,11 +243,9 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Password gate
 if not check_password():
     st.stop()
 
-# Header
 st.markdown("""
 <div class='main-header'>
     <h1>🛃 Customs Classifier</h1>
@@ -348,9 +346,10 @@ if classify_btn:
 if "last_classification" in st.session_state:
     st.markdown("<div class='section-label'>Ask a Follow-up Question</div>", unsafe_allow_html=True)
     st.markdown("<div style='font-family:sans-serif; font-size:0.85em; color:#666; margin-bottom:8px;'>Examples: \"What import documents do I need?\" · \"Is this subject to ADD/CVD?\" · \"Do I need a customs bond?\" · \"What are the country of origin marking requirements?\"</div>", unsafe_allow_html=True)
-    followup = st.text_input("", placeholder="Ask anything about this classification...", label_visibility="collapsed", key="followup_input")
-    if st.button("Ask →", use_container_width=True):
-        if followup:
-            with st.spinner("Researching your question..."):
-                answer = ask_followup(followup, st.session_state["last_classification"], st.session_state["last_description"], st.session_state["last_country"])
-            st.markdown(f"<div class='followup-box'>{answer}</div>", unsafe_allow_html=True)
+    with st.form(key="followup_form"):
+        followup = st.text_input("", placeholder="Ask anything about this classification...", label_visibility="collapsed")
+        submitted = st.form_submit_button("Ask →", use_container_width=True)
+    if submitted and followup:
+        with st.spinner("Researching your question..."):
+            answer = ask_followup(followup, st.session_state["last_classification"], st.session_state["last_description"], st.session_state["last_country"])
+        st.markdown(f"<div class='followup-box'>{answer}</div>", unsafe_allow_html=True)
