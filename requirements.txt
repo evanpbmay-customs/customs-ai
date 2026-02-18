@@ -1,1 +1,9 @@
-openai pinecone langchain langchain-openai langchain-pinecone streamlit beautifulsoup4 requests python-dotenv 
+openai>=1.0.0
+pinecone>=7.0.0
+langchain>=0.1.0
+langchain-openai>=0.1.0
+langchain-pinecone>=0.1.0
+streamlit>=1.28.0
+beautifulsoup4>=4.12.0
+requests>=2.31.0
+python-dotenv>=1.0.0
