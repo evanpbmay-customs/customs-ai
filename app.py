@@ -237,3 +237,4 @@ if st.button("Classify Product", type="primary"):
 
         st.divider()
         st.caption(f"⚠️ This tool provides informational classifications only and does not constitute legal advice. Tariff rates — particularly 2025 executive tariffs — are subject to frequent change. Tariff information last updated: {TARIFF_LAST_UPDATED}. Always verify current rates with a licensed customs broker before making import decisions.")
+    
