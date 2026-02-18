@@ -10,7 +10,28 @@ load_dotenv('C:/customs_ai2/.env')
 openai_client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
 pc = Pinecone(api_key=os.getenv('PINECONE_API_KEY'))
 index = pc.Index(os.getenv('PINECONE_INDEX'))
-
+def get_tariff_rate(hts_code):
+    # Clean the HTS code - remove dots and spaces
+    clean_code = hts_code.replace(".", "").replace(" ", "").strip()
+    if len(clean_code) < 8:
+        return None
+    
+    try:
+        # USITC HTS API
+        url = f"https://hts.usitc.gov/reststop/api/details/htsno/{clean_code[:8]}"
+        response = requests.get(url, timeout=10)
+        if response.status_code == 200:
+            data = response.json()
+            if data:
+                item = data[0] if isinstance(data, list) else data
+                return {
+                    "general_rate": item.get("general", "N/A"),
+                    "special_rate": item.get("special", "N/A"),
+                    "description": item.get("description", "N/A")
+                }
+    except Exception:
+        pass
+    return None
 def get_embedding(text):
     response = openai_client.embeddings.create(
         input=text[:8000],
@@ -116,6 +137,25 @@ if st.button("Classify Product", type="primary"):
         st.success("Classification Complete")
         st.markdown("### Result")
         st.markdown(classification)
+        
+        # Extract HTS code and look up tariff
+        import re
+        hts_match = re.search(r'\b\d{4}\.\d{2}\.\d{2,4}\b', classification)
+        if hts_match:
+            hts_code = hts_match.group()
+            with st.spinner(f"Looking up tariff rate for {hts_code}..."):
+                tariff = get_tariff_rate(hts_code)
+            if tariff:
+                st.divider()
+                st.markdown("### 💰 Tariff Information")
+                col1, col2 = st.columns(2)
+                with col1:
+                    st.metric("General Duty Rate", tariff["general_rate"])
+                with col2:
+                    st.metric("Special/Preferential Rate", tariff["special_rate"])
+                st.caption(f"HTS Description: {tariff['description']}")
+            else:
+                st.info(f"Tariff rate lookup unavailable for {hts_code}. Verify at hts.usitc.gov")
         
         st.divider()
         st.markdown("### Similar CBP Rulings Used")
