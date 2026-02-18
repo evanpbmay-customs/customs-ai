@@ -20,31 +20,6 @@ def get_embedding(text):
     )
     return response.data[0].embedding
 
-def get_tariff_rate(hts_code):
-    clean_code = hts_code.replace(".", "").replace(" ", "").strip()
-    if len(clean_code) < 8:
-        return None
-    try:
-        url = f"https://hts.usitc.gov/reststop/api/details/htsno/{clean_code}"
-        headers = {"Accept": "application/json"}
-        response = requests.get(url, headers=headers, timeout=10)
-        if response.status_code == 200:
-            data = response.json()
-            if data:
-                item = data[0] if isinstance(data, list) else data
-                return {
-                    "general_rate": item.get("general", item.get("generalRateOfDuty", "N/A")),
-                    "special_rate": item.get("special", item.get("specialRateOfDuty", "N/A")),
-                    "description": item.get("description", item.get("briefDescription", "N/A"))
-                }
-    except Exception:
-        pass
-    return {
-        "general_rate": "See USITC",
-        "special_rate": "See USITC",
-        "description": f"Look up {hts_code} at hts.usitc.gov"
-    }
-
 def classify_product(description, image_data=None):
     embedding = get_embedding(description)
     results = index.query(vector=embedding, top_k=5, include_metadata=True)
@@ -62,55 +37,47 @@ def classify_product(description, image_data=None):
         f"Ruling {r['ruling_number']} (similarity: {r['similarity']}):\n{r['text']}"
         for r in similar_rulings
     ])
-    
+
+    prompt = f"""You are an expert US customs classification specialist.
+Based on the following similar CBP rulings, classify this product.
+
+SIMILAR CBP RULINGS:
+{context}
+
+PRODUCT DESCRIPTION:
+{description}
+
+Provide:
+1. HTS Code (10 digits)
+2. Confidence Level (High/Medium/Low)
+3. General duty rate (e.g. "Free", "3.5%", "6.7¢/kg") from the HTS
+4. Country-specific tariffs if country of origin is provided:
+   - Section 301 China tariff if applicable (e.g. "25% additional")
+   - Any other relevant trade program (USMCA free, GSP free, etc.)
+   - Total estimated duty rate combining general + additional tariffs
+5. Reasoning based on similar rulings
+6. Most relevant ruling numbers"""
+
     messages = []
     
     if image_data:
         messages.append({
             "role": "user",
             "content": [
-                {"type": "text", "text": f"""You are an expert US customs classification specialist.
-Based on the following similar CBP rulings, classify this product.
-
-SIMILAR CBP RULINGS:
-{context}
-
-PRODUCT DESCRIPTION:
-{description}
-
-Also analyze the product image provided.
-
-Provide:
-1. HTS Code (10 digits)
-2. Confidence Level (High/Medium/Low)
-3. Reasoning based on similar rulings
-4. Most relevant ruling numbers"""},
+                {"type": "text", "text": prompt},
                 {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{image_data}"}}
             ]
         })
     else:
         messages.append({
             "role": "user",
-            "content": f"""You are an expert US customs classification specialist.
-Based on the following similar CBP rulings, classify this product.
-
-SIMILAR CBP RULINGS:
-{context}
-
-PRODUCT DESCRIPTION:
-{description}
-
-Provide:
-1. HTS Code (10 digits)
-2. Confidence Level (High/Medium/Low)
-3. Reasoning based on similar rulings
-4. Most relevant ruling numbers"""
+            "content": prompt
         })
     
     response = openai_client.chat.completions.create(
         model="gpt-4o",
         messages=messages,
-        max_tokens=600
+        max_tokens=700
     )
     
     return response.choices[0].message.content, similar_rulings
@@ -127,6 +94,11 @@ description = st.text_area("Product Description",
     placeholder="Example: Bluetooth wireless earbuds with charging case, used for listening to music",
     height=120)
 
+country = st.selectbox("Country of Origin (optional)", 
+    ["Not specified", "China", "Mexico", "Canada", "Vietnam", "India", 
+     "Bangladesh", "Indonesia", "South Korea", "Japan", "Germany", 
+     "Taiwan", "Thailand", "Brazil", "Other"])
+
 image_file = st.file_uploader("Product Image (optional)", type=["jpg", "jpeg", "png"])
 
 if st.button("Classify Product", type="primary"):
@@ -138,27 +110,15 @@ if st.button("Classify Product", type="primary"):
             if image_file:
                 image_data = base64.b64encode(image_file.read()).decode('utf-8')
             
-            classification, similar_rulings = classify_product(description, image_data)
+            full_description = description
+            if country != "Not specified":
+                full_description = f"{description}\n\nCountry of Origin: {country}"
+            
+            classification, similar_rulings = classify_product(full_description, image_data)
         
         st.success("Classification Complete")
         st.markdown("### Result")
         st.markdown(classification)
-        
-        # Extract HTS code and look up tariff
-        hts_match = re.search(r'\b\d{4}\.\d{2}\.\d{2,4}\b', classification)
-        if hts_match:
-            hts_code = hts_match.group()
-            with st.spinner(f"Looking up tariff rate for {hts_code}..."):
-                tariff = get_tariff_rate(hts_code)
-            if tariff:
-                st.divider()
-                st.markdown("### 💰 Tariff Information")
-                col1, col2 = st.columns(2)
-                with col1:
-                    st.metric("General Duty Rate", tariff["general_rate"])
-                with col2:
-                    st.metric("Special/Preferential Rate", tariff["special_rate"])
-                st.caption(f"HTS Description: {tariff['description']}")
         
         st.divider()
         st.markdown("### Similar CBP Rulings Used")
