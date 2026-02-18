@@ -59,16 +59,16 @@ def _render_login():
     st.markdown("""
     <div style='text-align: center; padding: 60px 0 20px 0;'>
         <div style='font-size: 48px; margin-bottom: 8px;'>🛃</div>
-        <h1 style='font-family: Georgia, serif; font-size: 2.4em; color: #1a1a2e; margin: 0;'>
+        <h1 style='font-family: Merriweather, Georgia, serif; font-size: 2.4em; color: #002B5C; margin: 0;'>
             Customs Classifier
         </h1>
-        <p style='color: #666; font-size: 1.1em; margin-top: 8px;'>
+        <p style='color: #555; font-size: 1.05em; margin-top: 8px; font-weight: 300;'>
             AI-powered HTS classification backed by real CBP rulings
         </p>
-        <hr style='border: 1px solid #e0e0e0; margin: 30px auto; width: 60%;'>
-        <p style='color: #888; font-size: 0.95em;'>
+        <hr style='border: 1px solid #002B5C; margin: 30px auto; width: 60%;'>
+        <p style='color: #777; font-size: 0.95em;'>
             This tool is available by subscription.<br>
-            Contact <a href='mailto:customsclassifier@gmail.com' style='color: #c8a951;'>customsclassifier@gmail.com</a> to request access.
+            Contact <a href='mailto:customsclassifier@gmail.com' style='color: #C9A84C;'>customsclassifier@gmail.com</a> to request access.
         </p>
     </div>
     """, unsafe_allow_html=True)
@@ -156,37 +156,38 @@ Be transparent about uncertainty on 2025 tariff rates."""
     
     return response.choices[0].message.content, similar_rulings
 
-# Custom CSS
+# Page config
 st.set_page_config(page_title="Customs Classifier AI", page_icon="🛃", layout="centered")
 
+# CSS
 st.markdown("""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Source+Sans+3:wght@300;400;500&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Source+Sans+3:wght@300;400;500;600&display=swap');
     
     .stApp {
-        background-color: #f8f7f4;
+        background-color: #ffffff;
     }
     
     .main-header {
         text-align: center;
-        padding: 40px 0 10px 0;
-        border-bottom: 2px solid #1a1a2e;
+        padding: 40px 0 16px 0;
+        border-bottom: 3px solid #002B5C;
         margin-bottom: 32px;
     }
     
     .main-header h1 {
-        font-family: 'Playfair Display', Georgia, serif;
-        font-size: 2.6em;
-        color: #1a1a2e;
+        font-family: 'Merriweather', Georgia, serif;
+        font-size: 2.4em;
+        color: #002B5C;
         margin: 0;
         letter-spacing: -0.5px;
     }
     
     .main-header p {
         font-family: 'Source Sans 3', sans-serif;
-        color: #666;
+        color: #555;
         font-size: 1.05em;
-        margin-top: 6px;
+        margin-top: 8px;
         font-weight: 300;
     }
     
@@ -194,72 +195,91 @@ st.markdown("""
         display: flex;
         justify-content: center;
         gap: 12px;
-        margin: 12px 0;
+        margin: 14px 0 4px 0;
+        flex-wrap: wrap;
     }
     
     .badge {
-        background: #1a1a2e;
-        color: #c8a951;
+        background: #002B5C;
+        color: #C9A84C;
         font-family: 'Source Sans 3', sans-serif;
-        font-size: 0.75em;
-        font-weight: 500;
-        padding: 4px 12px;
+        font-size: 0.72em;
+        font-weight: 600;
+        padding: 4px 14px;
         border-radius: 2px;
-        letter-spacing: 1px;
+        letter-spacing: 1.2px;
         text-transform: uppercase;
     }
 
     .result-box {
-        background: white;
-        border-left: 4px solid #c8a951;
+        background: #f9f9f9;
+        border-left: 4px solid #C9A84C;
+        border-top: 1px solid #e0e0e0;
+        border-right: 1px solid #e0e0e0;
+        border-bottom: 1px solid #e0e0e0;
         border-radius: 2px;
         padding: 24px;
-        margin: 16px 0;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        margin: 12px 0;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+        font-family: 'Source Sans 3', sans-serif;
+        color: #222;
+        line-height: 1.7;
     }
     
     .ruling-item {
         font-family: 'Source Sans 3', sans-serif;
         font-size: 0.9em;
-        color: #444;
-        padding: 6px 0;
+        color: #333;
+        padding: 7px 0;
         border-bottom: 1px solid #f0f0f0;
     }
     
     .section-label {
         font-family: 'Source Sans 3', sans-serif;
-        font-size: 0.75em;
+        font-size: 0.72em;
         font-weight: 600;
-        letter-spacing: 1.5px;
+        letter-spacing: 1.8px;
         text-transform: uppercase;
-        color: #1a1a2e;
-        margin-bottom: 8px;
+        color: #002B5C;
+        margin-bottom: 6px;
+        margin-top: 20px;
     }
 
     .stButton > button {
-        background-color: #1a1a2e !important;
-        color: #c8a951 !important;
+        background-color: #002B5C !important;
+        color: #C9A84C !important;
         border: none !important;
         font-family: 'Source Sans 3', sans-serif !important;
-        font-weight: 500 !important;
-        letter-spacing: 1px !important;
+        font-weight: 600 !important;
+        letter-spacing: 1.2px !important;
         text-transform: uppercase !important;
         padding: 12px 32px !important;
         border-radius: 2px !important;
         font-size: 0.85em !important;
+        transition: all 0.2s ease !important;
     }
     
     .stButton > button:hover {
-        background-color: #c8a951 !important;
-        color: #1a1a2e !important;
+        background-color: #C9A84C !important;
+        color: #002B5C !important;
+    }
+
+    a {
+        color: #002B5C !important;
     }
     
-    footer-note {
-        font-family: 'Source Sans 3', sans-serif;
-        font-size: 0.8em;
-        color: #999;
+    a:hover {
+        color: #C9A84C !important;
+    }
+
+    .footer-note {
         text-align: center;
-        padding: 20px 0;
+        padding: 24px 0 8px 0;
+        font-family: 'Source Sans 3', sans-serif;
+        font-size: 0.78em;
+        color: #aaa;
+        border-top: 1px solid #e0e0e0;
+        margin-top: 32px;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -281,9 +301,9 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# Input section
+# Inputs
 st.markdown("<div class='section-label'>Product Description</div>", unsafe_allow_html=True)
-description = st.text_area("", 
+description = st.text_area("",
     placeholder="Describe the product in detail — material, function, use case. Example: Bluetooth wireless earbuds with charging case, made of plastic and silicone, used for listening to music.",
     height=120,
     label_visibility="collapsed")
@@ -345,11 +365,11 @@ if classify_btn:
         st.markdown("<div class='section-label'>Classification Result</div>", unsafe_allow_html=True)
         st.markdown(f"<div class='result-box'>{classification}</div>", unsafe_allow_html=True)
         
-        st.markdown("<br><div class='section-label'>Supporting CBP Rulings</div>", unsafe_allow_html=True)
+        st.markdown("<div class='section-label'>Supporting CBP Rulings</div>", unsafe_allow_html=True)
         for r in similar_rulings:
             st.markdown(f"<div class='ruling-item'>📄 <a href='{r['url']}' target='_blank'>{r['ruling_number']}</a> — similarity score: {r['similarity']}</div>", unsafe_allow_html=True)
 
-        st.markdown("<br><div class='section-label'>Was This Correct?</div>", unsafe_allow_html=True)
+        st.markdown("<div class='section-label'>Was This Correct?</div>", unsafe_allow_html=True)
         col1, col2 = st.columns(2)
         with col1:
             if st.button("✅ Yes, correct", use_container_width=True):
@@ -361,8 +381,8 @@ if classify_btn:
                 st.warning("Thanks — we'll use this to improve.")
 
         st.markdown(f"""
-        <div style='text-align:center; padding: 24px 0 8px 0; font-family: sans-serif; font-size: 0.78em; color: #aaa;'>
-            For informational purposes only. Not legal advice.<br>
-            Tariff data last updated: {TARIFF_LAST_UPDATED} — verify current rates before making import decisions.
+        <div class='footer-note'>
+            For informational purposes only — not legal advice.<br>
+            Tariff data last updated: {TARIFF_LAST_UPDATED} · Always verify with a licensed customs broker before making import decisions.
         </div>
         """, unsafe_allow_html=True)
