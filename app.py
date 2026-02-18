@@ -16,6 +16,9 @@ pc = Pinecone(api_key=os.getenv('PINECONE_API_KEY'))
 index = pc.Index(os.getenv('PINECONE_INDEX'))
 
 # Countries with active 2025 tariff actions
+# Last updated: February 18, 2025
+TARIFF_LAST_UPDATED = "February 18, 2026"
+
 TARIFF_ALERT_COUNTRIES = {
     "Vietnam": "⚠️ Vietnam is subject to 2025 reciprocal tariffs (currently ~20%, subject to change). Rates are under active review — verify current rates at hts.usitc.gov before making import decisions.",
     "China (Section 301 tariffs apply)": "⚠️ China faces Section 301 tariffs (7.5%-25% depending on product list) PLUS 2025 executive tariffs. Total additional duties may exceed 145% on some products. Verify current rates before importing.",
@@ -207,4 +210,4 @@ if st.button("Classify Product", type="primary"):
                 st.warning("Thanks — we'll use this to improve.")
 
         st.divider()
-        st.caption("⚠️ This tool provides informational classifications only and does not constitute legal advice. Tariff rates — particularly 2025 executive tariffs — are subject to frequent change. Always verify current rates with a licensed customs broker before making import decisions.")
+        st.caption(f"⚠️ This tool provides informational classifications only and does not constitute legal advice. Tariff rates — particularly 2025 executive tariffs — are subject to frequent change. Tariff information last updated: {TARIFF_LAST_UPDATED}. Always verify current rates with a licensed customs broker before making import decisions.")
