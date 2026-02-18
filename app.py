@@ -16,7 +16,6 @@ pc = Pinecone(api_key=os.getenv('PINECONE_API_KEY'))
 index = pc.Index(os.getenv('PINECONE_INDEX'))
 
 # Countries with active 2025 tariff actions
-# Last updated: February 18, 2025
 TARIFF_LAST_UPDATED = "February 18, 2026"
 
 TARIFF_ALERT_COUNTRIES = {
@@ -37,6 +36,29 @@ TARIFF_ALERT_COUNTRIES = {
     "Spain": "⚠️ Spain (EU) is subject to 2025 reciprocal tariffs. Rates are under active review — verify current rates before making import decisions.",
     "Netherlands": "⚠️ Netherlands (EU) is subject to 2025 reciprocal tariffs. Rates are under active review — verify current rates before making import decisions.",
 }
+
+def check_password():
+    def password_entered():
+        if st.session_state["password"] == os.getenv("APP_PASSWORD", "customs2026"):
+            st.session_state["password_correct"] = True
+            del st.session_state["password"]
+        else:
+            st.session_state["password_correct"] = False
+
+    if "password_correct" not in st.session_state:
+        st.title("🛃 Customs Classifier AI")
+        st.markdown("### Access Required")
+        st.markdown("This tool is available by subscription. Contact **evanmay@customs.ai** to request access.")
+        st.text_input("Access Password", type="password", on_change=password_entered, key="password")
+        return False
+    elif not st.session_state["password_correct"]:
+        st.title("🛃 Customs Classifier AI")
+        st.markdown("### Access Required")
+        st.markdown("This tool is available by subscription. Contact **evanmay@customs.ai** to request access.")
+        st.text_input("Access Password", type="password", on_change=password_entered, key="password")
+        st.error("Incorrect password.")
+        return False
+    return True
 
 def get_embedding(text):
     response = openai_client.embeddings.create(
@@ -125,6 +147,10 @@ Important: Be transparent about uncertainty on 2025 tariff rates as these have b
     )
     
     return response.choices[0].message.content, similar_rulings
+
+# Password gate
+if not check_password():
+    st.stop()
 
 # App UI
 st.set_page_config(page_title="customs.ai", page_icon="🛃", layout="centered")
