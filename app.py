@@ -1,43 +1,49 @@
 import streamlit as st
 import os
+import re
+import base64
 from dotenv import load_dotenv
 from openai import OpenAI
 from pinecone import Pinecone
-import base64
+import requests
 
 load_dotenv('C:/customs_ai2/.env')
 
 openai_client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
 pc = Pinecone(api_key=os.getenv('PINECONE_API_KEY'))
 index = pc.Index(os.getenv('PINECONE_INDEX'))
-def get_tariff_rate(hts_code):
-    # Clean the HTS code - remove dots and spaces
-    clean_code = hts_code.replace(".", "").replace(" ", "").strip()
-    if len(clean_code) < 8:
-        return None
-    
-    try:
-        # USITC HTS API
-        url = f"https://hts.usitc.gov/reststop/api/details/htsno/{clean_code[:8]}"
-        response = requests.get(url, timeout=10)
-        if response.status_code == 200:
-            data = response.json()
-            if data:
-                item = data[0] if isinstance(data, list) else data
-                return {
-                    "general_rate": item.get("general", "N/A"),
-                    "special_rate": item.get("special", "N/A"),
-                    "description": item.get("description", "N/A")
-                }
-    except Exception:
-        pass
-    return None
+
 def get_embedding(text):
     response = openai_client.embeddings.create(
         input=text[:8000],
         model="text-embedding-ada-002"
     )
     return response.data[0].embedding
+
+def get_tariff_rate(hts_code):
+    clean_code = hts_code.replace(".", "").replace(" ", "").strip()
+    if len(clean_code) < 8:
+        return None
+    try:
+        url = f"https://hts.usitc.gov/reststop/api/details/htsno/{clean_code}"
+        headers = {"Accept": "application/json"}
+        response = requests.get(url, headers=headers, timeout=10)
+        if response.status_code == 200:
+            data = response.json()
+            if data:
+                item = data[0] if isinstance(data, list) else data
+                return {
+                    "general_rate": item.get("general", item.get("generalRateOfDuty", "N/A")),
+                    "special_rate": item.get("special", item.get("specialRateOfDuty", "N/A")),
+                    "description": item.get("description", item.get("briefDescription", "N/A"))
+                }
+    except Exception:
+        pass
+    return {
+        "general_rate": "See USITC",
+        "special_rate": "See USITC",
+        "description": f"Look up {hts_code} at hts.usitc.gov"
+    }
 
 def classify_product(description, image_data=None):
     embedding = get_embedding(description)
@@ -139,7 +145,6 @@ if st.button("Classify Product", type="primary"):
         st.markdown(classification)
         
         # Extract HTS code and look up tariff
-        import re
         hts_match = re.search(r'\b\d{4}\.\d{2}\.\d{2,4}\b', classification)
         if hts_match:
             hts_code = hts_match.group()
@@ -154,8 +159,6 @@ if st.button("Classify Product", type="primary"):
                 with col2:
                     st.metric("Special/Preferential Rate", tariff["special_rate"])
                 st.caption(f"HTS Description: {tariff['description']}")
-            else:
-                st.info(f"Tariff rate lookup unavailable for {hts_code}. Verify at hts.usitc.gov")
         
         st.divider()
         st.markdown("### Similar CBP Rulings Used")
