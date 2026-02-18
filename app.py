@@ -35,14 +35,14 @@ TARIFF_ALERT_COUNTRIES = {
     "Netherlands": "⚠️ Netherlands (EU) is subject to 2025 reciprocal tariffs. Rates are under active review.",
 }
 
-def check_password():
-    def password_entered():
-        if st.session_state["password"] == os.getenv("APP_PASSWORD", "customs2026"):
-            st.session_state["password_correct"] = True
-            del st.session_state["password"]
-        else:
-            st.session_state["password_correct"] = False
+def password_entered():
+    if st.session_state["password"] == os.getenv("APP_PASSWORD", "customs2026"):
+        st.session_state["password_correct"] = True
+        del st.session_state["password"]
+    else:
+        st.session_state["password_correct"] = False
 
+def check_password():
     if "password_correct" not in st.session_state:
         render_landing()
         return False
@@ -54,17 +54,17 @@ def check_password():
 
 def render_landing():
     st.markdown("""
-    <div style='text-align:center; padding: 32px 0 16px 0; border-bottom: 3px solid #002B5C; margin-bottom: 28px;'>
+    <div style='text-align:center; padding:32px 0 16px 0; border-bottom:3px solid #002B5C; margin-bottom:28px;'>
         <div style='font-size:44px;'>🛃</div>
-        <h1 style='font-family: Georgia, serif; font-size: 2.3em; color: #002B5C; margin: 8px 0 0 0;'>Customs Classifier</h1>
-        <p style='color: #555; font-size: 1em; margin-top: 6px; font-weight: 300;'>AI-powered HTS classification backed by real CBP rulings</p>
+        <h1 style='font-family:Georgia,serif; font-size:2.3em; color:#002B5C; margin:8px 0 0 0;'>Customs Classifier</h1>
+        <p style='color:#555; font-size:1em; margin-top:6px; font-weight:300;'>AI-powered HTS classification backed by real CBP rulings</p>
     </div>
     """, unsafe_allow_html=True)
 
     col1, col2, col3 = st.columns(3)
     with col1:
         st.markdown("""
-        <div style='background:#f9f9f9; border-top:3px solid #002B5C; padding:18px; border-radius:2px; height:140px;'>
+        <div style='background:#f9f9f9; border-top:3px solid #002B5C; padding:18px; border-radius:2px; height:150px;'>
             <div style='font-size:1.4em;'>📋</div>
             <div style='font-family:Georgia,serif; font-weight:700; color:#002B5C; margin:6px 0 4px; font-size:0.95em;'>HTS Classification</div>
             <div style='font-size:0.82em; color:#666;'>10-digit codes with confidence levels, backed by real CBP rulings.</div>
@@ -72,7 +72,7 @@ def render_landing():
         """, unsafe_allow_html=True)
     with col2:
         st.markdown("""
-        <div style='background:#f9f9f9; border-top:3px solid #C9A84C; padding:18px; border-radius:2px; height:140px;'>
+        <div style='background:#f9f9f9; border-top:3px solid #C9A84C; padding:18px; border-radius:2px; height:150px;'>
             <div style='font-size:1.4em;'>💰</div>
             <div style='font-family:Georgia,serif; font-weight:700; color:#002B5C; margin:6px 0 4px; font-size:0.95em;'>Duty Rate Lookup</div>
             <div style='font-size:0.82em; color:#666;'>General rates plus Section 301, 2025 tariffs, and FTA benefits.</div>
@@ -80,10 +80,10 @@ def render_landing():
         """, unsafe_allow_html=True)
     with col3:
         st.markdown("""
-        <div style='background:#f9f9f9; border-top:3px solid #002B5C; padding:18px; border-radius:2px; height:140px;'>
+        <div style='background:#f9f9f9; border-top:3px solid #002B5C; padding:18px; border-radius:2px; height:150px;'>
             <div style='font-size:1.4em;'>💬</div>
             <div style='font-family:Georgia,serif; font-weight:700; color:#002B5C; margin:6px 0 4px; font-size:0.95em;'>Ask Follow-ups</div>
-            <div style='font-size:0.82em; color:#666;'>Ask about docs, ADD/CVD, bonding and more after each classification.</div>
+            <div style='font-size:0.82em; color:#666;'>Ask about documentation, ADD/CVD, bonding and more after each classification.</div>
         </div>
         """, unsafe_allow_html=True)
 
@@ -96,14 +96,8 @@ def render_landing():
     """, unsafe_allow_html=True)
 
     st.markdown("<div style='font-family:sans-serif; font-size:0.72em; font-weight:600; letter-spacing:1.8px; text-transform:uppercase; color:#002B5C; margin-bottom:6px;'>Subscriber Login</div>", unsafe_allow_html=True)
-    st.text_input("Access Password", type="password", on_change=password_entered, key="password", placeholder="Enter your access password", label_visibility="collapsed")
-
-def password_entered():
-    if st.session_state["password"] == os.getenv("APP_PASSWORD", "customs2026"):
-        st.session_state["password_correct"] = True
-        del st.session_state["password"]
-    else:
-        st.session_state["password_correct"] = False
+    st.text_input("Access Password", type="password", on_change=password_entered, key="password",
+                  placeholder="Enter your access password", label_visibility="collapsed")
 
 def get_embedding(text):
     response = openai_client.embeddings.create(
@@ -198,11 +192,23 @@ COUNTRY OF ORIGIN: {country}
 CLASSIFICATION RESULT:
 {classification}
 
-The user now has a follow-up question:
-{question}
+The user has a follow-up question: {question}
 
-Answer concisely and practically. If you reference specific regulations, name them.
-If you're uncertain, say so clearly rather than guessing."""
+You may ONLY answer questions in these categories:
+- Required import documentation (CBP Form 3461, commercial invoice, packing list, bill of lading, etc.)
+- Whether the product is likely subject to antidumping (ADD) or countervailing duties (CVD)
+- Whether a customs bond is required
+- ISF (Importer Security Filing) requirements
+- FDA, USDA, or other agency filing requirements for this product type
+- What information must appear on the commercial invoice
+- Country of origin marking requirements (19 CFR Part 134)
+- HTS classification methodology questions
+
+If the question is outside these categories, or if it involves specific dollar thresholds, rates, or rules that change frequently (such as de minimis thresholds, current tariff rates, or recent executive orders), respond with exactly:
+"This question involves information that changes frequently and is outside the scope of what I can reliably answer. Please verify with a licensed customs broker or at cbp.gov."
+
+Do NOT guess or provide outdated information. It is better to decline than to answer incorrectly.
+Answer concisely and practically. Name specific regulations where relevant."""
 
     response = openai_client.chat.completions.create(
         model="gpt-4o",
@@ -217,8 +223,8 @@ st.set_page_config(page_title="Customs Classifier AI", page_icon="🛃", layout=
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Source+Sans+3:wght@300;400;500;600&display=swap');
-    .stApp { background-color: #ffffff; }
-    .block-container { padding-left: 1rem !important; padding-right: 1rem !important; max-width: 860px !important; }
+    .stApp { background-color:#ffffff; }
+    .block-container { padding-left:1rem !important; padding-right:1rem !important; max-width:860px !important; }
     .main-header { text-align:center; padding:32px 0 16px 0; border-bottom:3px solid #002B5C; margin-bottom:28px; }
     .main-header h1 { font-family:'Merriweather',Georgia,serif; font-size:clamp(1.6em,5vw,2.4em); color:#002B5C; margin:0; }
     .main-header p { font-family:'Source Sans 3',sans-serif; color:#555; font-size:clamp(0.9em,3vw,1.05em); margin-top:8px; font-weight:300; }
@@ -233,7 +239,7 @@ st.markdown("""
     a { color:#002B5C !important; }
     a:hover { color:#C9A84C !important; }
     .footer-note { text-align:center; padding:24px 0 8px 0; font-family:'Source Sans 3',sans-serif; font-size:0.78em; color:#aaa; border-top:1px solid #e0e0e0; margin-top:32px; line-height:1.6; }
-    @media (max-width: 640px) { [data-testid="column"] { width:100% !important; flex:1 1 100% !important; min-width:100% !important; } }
+    @media (max-width:640px) { [data-testid="column"] { width:100% !important; flex:1 1 100% !important; min-width:100% !important; } }
 </style>
 """, unsafe_allow_html=True)
 
@@ -341,7 +347,7 @@ if classify_btn:
 
 if "last_classification" in st.session_state:
     st.markdown("<div class='section-label'>Ask a Follow-up Question</div>", unsafe_allow_html=True)
-    st.markdown("<div style='font-family:sans-serif; font-size:0.85em; color:#666; margin-bottom:8px;'>Examples: \"What import documents do I need?\" · \"Is this subject to ADD/CVD?\" · \"Do I need a customs bond?\"</div>", unsafe_allow_html=True)
+    st.markdown("<div style='font-family:sans-serif; font-size:0.85em; color:#666; margin-bottom:8px;'>Examples: \"What import documents do I need?\" · \"Is this subject to ADD/CVD?\" · \"Do I need a customs bond?\" · \"What are the country of origin marking requirements?\"</div>", unsafe_allow_html=True)
     followup = st.text_input("", placeholder="Ask anything about this classification...", label_visibility="collapsed", key="followup_input")
     if st.button("Ask →", use_container_width=True):
         if followup:
