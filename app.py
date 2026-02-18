@@ -15,26 +15,25 @@ openai_client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
 pc = Pinecone(api_key=os.getenv('PINECONE_API_KEY'))
 index = pc.Index(os.getenv('PINECONE_INDEX'))
 
-# Countries with active 2025 tariff actions
 TARIFF_LAST_UPDATED = "February 18, 2026"
 
 TARIFF_ALERT_COUNTRIES = {
-    "Vietnam": "⚠️ Vietnam is subject to 2025 reciprocal tariffs (currently ~20%, subject to change). Rates are under active review — verify current rates at hts.usitc.gov before making import decisions.",
-    "China (Section 301 tariffs apply)": "⚠️ China faces Section 301 tariffs (7.5%-25% depending on product list) PLUS 2025 executive tariffs. Total additional duties may exceed 145% on some products. Verify current rates before importing.",
-    "Hong Kong (Section 301 tariffs apply)": "⚠️ Hong Kong goods are treated as Chinese-origin for tariff purposes and subject to the same Section 301 and 2025 executive tariffs as China.",
-    "Cambodia": "⚠️ Cambodia is subject to 2025 reciprocal tariffs. Rates are under active review — verify current rates before making import decisions.",
-    "Bangladesh": "⚠️ Bangladesh is subject to 2025 reciprocal tariffs. Rates are under active review — verify current rates before making import decisions.",
-    "India": "⚠️ India is subject to 2025 reciprocal tariffs. Rates are under active review — verify current rates before making import decisions.",
-    "Thailand": "⚠️ Thailand is subject to 2025 reciprocal tariffs. Rates are under active review — verify current rates before making import decisions.",
-    "Indonesia": "⚠️ Indonesia is subject to 2025 reciprocal tariffs. Rates are under active review — verify current rates before making import decisions.",
-    "Taiwan": "⚠️ Taiwan is subject to 2025 reciprocal tariffs. Rates are under active review — verify current rates before making import decisions.",
-    "Japan": "⚠️ Japan is subject to 2025 reciprocal tariffs. Rates are under active review — verify current rates before making import decisions.",
-    "South Korea (KORUS FTA - may qualify for free)": "⚠️ South Korea is subject to 2025 reciprocal tariffs which may override KORUS FTA benefits on some products. Verify current rates before making import decisions.",
-    "Germany": "⚠️ Germany (EU) is subject to 2025 reciprocal tariffs. Rates are under active review — verify current rates before making import decisions.",
-    "Italy": "⚠️ Italy (EU) is subject to 2025 reciprocal tariffs. Rates are under active review — verify current rates before making import decisions.",
-    "France": "⚠️ France (EU) is subject to 2025 reciprocal tariffs. Rates are under active review — verify current rates before making import decisions.",
-    "Spain": "⚠️ Spain (EU) is subject to 2025 reciprocal tariffs. Rates are under active review — verify current rates before making import decisions.",
-    "Netherlands": "⚠️ Netherlands (EU) is subject to 2025 reciprocal tariffs. Rates are under active review — verify current rates before making import decisions.",
+    "Vietnam": "⚠️ Vietnam is subject to 2025 reciprocal tariffs (currently ~20%, subject to change). Verify current rates at hts.usitc.gov before making import decisions.",
+    "China (Section 301 tariffs apply)": "⚠️ China faces Section 301 tariffs (7.5%-25%) PLUS 2025 executive tariffs. Total additional duties may exceed 145% on some products. Verify before importing.",
+    "Hong Kong (Section 301 tariffs apply)": "⚠️ Hong Kong goods are treated as Chinese-origin and subject to the same Section 301 and 2025 executive tariffs as China.",
+    "Cambodia": "⚠️ Cambodia is subject to 2025 reciprocal tariffs. Rates are under active review.",
+    "Bangladesh": "⚠️ Bangladesh is subject to 2025 reciprocal tariffs. Rates are under active review.",
+    "India": "⚠️ India is subject to 2025 reciprocal tariffs. Rates are under active review.",
+    "Thailand": "⚠️ Thailand is subject to 2025 reciprocal tariffs. Rates are under active review.",
+    "Indonesia": "⚠️ Indonesia is subject to 2025 reciprocal tariffs. Rates are under active review.",
+    "Taiwan": "⚠️ Taiwan is subject to 2025 reciprocal tariffs. Rates are under active review.",
+    "Japan": "⚠️ Japan is subject to 2025 reciprocal tariffs. Rates are under active review.",
+    "South Korea (KORUS FTA - may qualify for free)": "⚠️ South Korea is subject to 2025 reciprocal tariffs which may override KORUS FTA benefits on some products.",
+    "Germany": "⚠️ Germany (EU) is subject to 2025 reciprocal tariffs. Rates are under active review.",
+    "Italy": "⚠️ Italy (EU) is subject to 2025 reciprocal tariffs. Rates are under active review.",
+    "France": "⚠️ France (EU) is subject to 2025 reciprocal tariffs. Rates are under active review.",
+    "Spain": "⚠️ Spain (EU) is subject to 2025 reciprocal tariffs. Rates are under active review.",
+    "Netherlands": "⚠️ Netherlands (EU) is subject to 2025 reciprocal tariffs. Rates are under active review.",
 }
 
 def check_password():
@@ -46,19 +45,33 @@ def check_password():
             st.session_state["password_correct"] = False
 
     if "password_correct" not in st.session_state:
-        st.title("🛃 Customs Classifier AI")
-        st.markdown("### Access Required")
-        st.markdown("This tool is available by subscription. Contact **evanmay@customs.ai** to request access.")
+        _render_login()
         st.text_input("Access Password", type="password", on_change=password_entered, key="password")
         return False
     elif not st.session_state["password_correct"]:
-        st.title("🛃 Customs Classifier AI")
-        st.markdown("### Access Required")
-        st.markdown("This tool is available by subscription. Contact **evanmay@customs.ai** to request access.")
+        _render_login()
         st.text_input("Access Password", type="password", on_change=password_entered, key="password")
-        st.error("Incorrect password.")
+        st.error("Incorrect password. Contact us for access.")
         return False
     return True
+
+def _render_login():
+    st.markdown("""
+    <div style='text-align: center; padding: 60px 0 20px 0;'>
+        <div style='font-size: 48px; margin-bottom: 8px;'>🛃</div>
+        <h1 style='font-family: Georgia, serif; font-size: 2.4em; color: #1a1a2e; margin: 0;'>
+            Customs Classifier
+        </h1>
+        <p style='color: #666; font-size: 1.1em; margin-top: 8px;'>
+            AI-powered HTS classification backed by real CBP rulings
+        </p>
+        <hr style='border: 1px solid #e0e0e0; margin: 30px auto; width: 60%;'>
+        <p style='color: #888; font-size: 0.95em;'>
+            This tool is available by subscription.<br>
+            Contact <a href='mailto:customsclassifier@gmail.com' style='color: #c8a951;'>customsclassifier@gmail.com</a> to request access.
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
 
 def get_embedding(text):
     response = openai_client.embeddings.create(
@@ -115,17 +128,15 @@ Provide:
 3. General duty rate from the HTS schedule (e.g. "Free", "3.5%", "6.7¢/kg")
 4. Country-specific tariffs based on country of origin if provided:
    - Section 301 China tariffs if applicable (List 1/2/3/4A - specify rate)
-   - 2025 reciprocal/executive tariffs if applicable (note these are subject to change and some are paused)
+   - 2025 reciprocal/executive tariffs if applicable (note if paused or in flux)
    - Any trade agreement benefits (USMCA free, KORUS FTA, CAFTA, etc.)
    - Total estimated duty rate combining all applicable tariffs
-   - Note clearly if rates are currently in flux or subject to executive action
 5. Reasoning based on the similar CBP rulings provided
 6. Most relevant ruling numbers that support this classification
 
-Important: Be transparent about uncertainty on 2025 tariff rates as these have been subject to frequent executive action."""
+Be transparent about uncertainty on 2025 tariff rates."""
 
     messages = []
-    
     if image_data:
         messages.append({
             "role": "user",
@@ -135,10 +146,7 @@ Important: Be transparent about uncertainty on 2025 tariff rates as these have b
             ]
         })
     else:
-        messages.append({
-            "role": "user",
-            "content": prompt
-        })
+        messages.append({"role": "user", "content": prompt})
     
     response = openai_client.chat.completions.create(
         model="gpt-4o",
@@ -148,23 +156,140 @@ Important: Be transparent about uncertainty on 2025 tariff rates as these have b
     
     return response.choices[0].message.content, similar_rulings
 
+# Custom CSS
+st.set_page_config(page_title="Customs Classifier AI", page_icon="🛃", layout="centered")
+
+st.markdown("""
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Source+Sans+3:wght@300;400;500&display=swap');
+    
+    .stApp {
+        background-color: #f8f7f4;
+    }
+    
+    .main-header {
+        text-align: center;
+        padding: 40px 0 10px 0;
+        border-bottom: 2px solid #1a1a2e;
+        margin-bottom: 32px;
+    }
+    
+    .main-header h1 {
+        font-family: 'Playfair Display', Georgia, serif;
+        font-size: 2.6em;
+        color: #1a1a2e;
+        margin: 0;
+        letter-spacing: -0.5px;
+    }
+    
+    .main-header p {
+        font-family: 'Source Sans 3', sans-serif;
+        color: #666;
+        font-size: 1.05em;
+        margin-top: 6px;
+        font-weight: 300;
+    }
+    
+    .badge-row {
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+        margin: 12px 0;
+    }
+    
+    .badge {
+        background: #1a1a2e;
+        color: #c8a951;
+        font-family: 'Source Sans 3', sans-serif;
+        font-size: 0.75em;
+        font-weight: 500;
+        padding: 4px 12px;
+        border-radius: 2px;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+    }
+
+    .result-box {
+        background: white;
+        border-left: 4px solid #c8a951;
+        border-radius: 2px;
+        padding: 24px;
+        margin: 16px 0;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    
+    .ruling-item {
+        font-family: 'Source Sans 3', sans-serif;
+        font-size: 0.9em;
+        color: #444;
+        padding: 6px 0;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    
+    .section-label {
+        font-family: 'Source Sans 3', sans-serif;
+        font-size: 0.75em;
+        font-weight: 600;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        color: #1a1a2e;
+        margin-bottom: 8px;
+    }
+
+    .stButton > button {
+        background-color: #1a1a2e !important;
+        color: #c8a951 !important;
+        border: none !important;
+        font-family: 'Source Sans 3', sans-serif !important;
+        font-weight: 500 !important;
+        letter-spacing: 1px !important;
+        text-transform: uppercase !important;
+        padding: 12px 32px !important;
+        border-radius: 2px !important;
+        font-size: 0.85em !important;
+    }
+    
+    .stButton > button:hover {
+        background-color: #c8a951 !important;
+        color: #1a1a2e !important;
+    }
+    
+    footer-note {
+        font-family: 'Source Sans 3', sans-serif;
+        font-size: 0.8em;
+        color: #999;
+        text-align: center;
+        padding: 20px 0;
+    }
+</style>
+""", unsafe_allow_html=True)
+
 # Password gate
 if not check_password():
     st.stop()
 
-# App UI
-st.set_page_config(page_title="customs.ai", page_icon="🛃", layout="centered")
+# Header
+st.markdown("""
+<div class='main-header'>
+    <h1>🛃 Customs Classifier</h1>
+    <p>AI-powered HTS classification backed by real CBP rulings</p>
+    <div class='badge-row'>
+        <span class='badge'>CBP Rulings Database</span>
+        <span class='badge'>GPT-4o Powered</span>
+        <span class='badge'>2025 Tariffs Included</span>
+    </div>
+</div>
+""", unsafe_allow_html=True)
 
-st.title("🛃 Customs Classifier AI")
-st.markdown("**Enter a product description to get an HTS classification based on real CBP rulings.**")
-st.markdown("*For informational purposes only. Not legal advice.*")
-st.divider()
+# Input section
+st.markdown("<div class='section-label'>Product Description</div>", unsafe_allow_html=True)
+description = st.text_area("", 
+    placeholder="Describe the product in detail — material, function, use case. Example: Bluetooth wireless earbuds with charging case, made of plastic and silicone, used for listening to music.",
+    height=120,
+    label_visibility="collapsed")
 
-description = st.text_area("Product Description", 
-    placeholder="Example: Bluetooth wireless earbuds with charging case, used for listening to music",
-    height=120)
-
-country = st.selectbox("Country of Origin (optional)", [
+st.markdown("<div class='section-label'>Country of Origin</div>", unsafe_allow_html=True)
+country = st.selectbox("", [
     "Not specified",
     "China (Section 301 tariffs apply)",
     "Hong Kong (Section 301 tariffs apply)",
@@ -191,19 +316,22 @@ country = st.selectbox("Country of Origin (optional)", [
     "Australia (FTA - may qualify for free)",
     "Singapore (FTA - may qualify for free)",
     "Other"
-])
+], label_visibility="collapsed")
 
-# Show tariff alert if applicable
 if country in TARIFF_ALERT_COUNTRIES:
     st.warning(TARIFF_ALERT_COUNTRIES[country])
 
-image_file = st.file_uploader("Product Image (optional)", type=["jpg", "jpeg", "png"])
+st.markdown("<div class='section-label'>Product Image (Optional)</div>", unsafe_allow_html=True)
+image_file = st.file_uploader("", type=["jpg", "jpeg", "png"], label_visibility="collapsed")
 
-if st.button("Classify Product", type="primary"):
+st.markdown("<br>", unsafe_allow_html=True)
+classify_btn = st.button("Classify Product →", type="primary", use_container_width=True)
+
+if classify_btn:
     if not description:
         st.error("Please enter a product description.")
     else:
-        with st.spinner("Searching CBP rulings and classifying..."):
+        with st.spinner("Searching CBP rulings database and classifying..."):
             image_data = None
             if image_file:
                 image_data = base64.b64encode(image_file.read()).decode('utf-8')
@@ -214,27 +342,27 @@ if st.button("Classify Product", type="primary"):
             
             classification, similar_rulings = classify_product(full_description, image_data)
         
-        st.success("Classification Complete")
-        st.markdown("### Result")
-        st.markdown(classification)
+        st.markdown("<div class='section-label'>Classification Result</div>", unsafe_allow_html=True)
+        st.markdown(f"<div class='result-box'>{classification}</div>", unsafe_allow_html=True)
         
-        st.divider()
-        st.markdown("### Similar CBP Rulings Used")
+        st.markdown("<br><div class='section-label'>Supporting CBP Rulings</div>", unsafe_allow_html=True)
         for r in similar_rulings:
-            st.markdown(f"- [{r['ruling_number']}]({r['url']}) — similarity: {r['similarity']}")
+            st.markdown(f"<div class='ruling-item'>📄 <a href='{r['url']}' target='_blank'>{r['ruling_number']}</a> — similarity score: {r['similarity']}</div>", unsafe_allow_html=True)
 
-        st.divider()
-        st.markdown("### Was this classification correct?")
+        st.markdown("<br><div class='section-label'>Was This Correct?</div>", unsafe_allow_html=True)
         col1, col2 = st.columns(2)
         with col1:
-            if st.button("✅ Yes, correct"):
+            if st.button("✅ Yes, correct", use_container_width=True):
                 save_feedback(description, country, classification, True)
                 st.success("Thanks for the feedback!")
         with col2:
-            if st.button("❌ No, incorrect"):
+            if st.button("❌ No, incorrect", use_container_width=True):
                 save_feedback(description, country, classification, False)
                 st.warning("Thanks — we'll use this to improve.")
 
-        st.divider()
-        st.caption(f"⚠️ This tool provides informational classifications only and does not constitute legal advice. Tariff rates — particularly 2025 executive tariffs — are subject to frequent change. Tariff information last updated: {TARIFF_LAST_UPDATED}. Always verify current rates with a licensed customs broker before making import decisions.")
-    
+        st.markdown(f"""
+        <div style='text-align:center; padding: 24px 0 8px 0; font-family: sans-serif; font-size: 0.78em; color: #aaa;'>
+            For informational purposes only. Not legal advice.<br>
+            Tariff data last updated: {TARIFF_LAST_UPDATED} — verify current rates before making import decisions.
+        </div>
+        """, unsafe_allow_html=True)
