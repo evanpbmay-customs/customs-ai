@@ -6,7 +6,6 @@ from datetime import datetime
 from dotenv import load_dotenv
 from openai import OpenAI
 from pinecone import Pinecone
-import requests
 
 load_dotenv('C:/customs_ai2/.env')
 
@@ -86,9 +85,15 @@ def render_landing():
         """, unsafe_allow_html=True)
 
     st.markdown("""
-    <div style='background:#002B5C; color:white; padding:24px; border-radius:2px; margin:28px 0 20px 0; text-align:center;'>
-        <div style='font-size:0.9em; color:#C9A84C; letter-spacing:1px; text-transform:uppercase; font-weight:600; margin-bottom:8px;'>Get Access</div>
-        <div style='font-size:0.85em; color:#ccd; line-height:1.6;'>Email <a href='mailto:customsclassifier@gmail.com' style='color:#C9A84C;'>customsclassifier@gmail.com</a> to get access</div>
+    <div style='background:#002B5C; color:white; padding:28px 24px; border-radius:2px; margin:28px 0 20px 0; text-align:center;'>
+        <div style='font-size:0.9em; color:#C9A84C; letter-spacing:1px; text-transform:uppercase; font-weight:600; margin-bottom:12px;'>Get Access</div>
+        <div style='font-size:0.95em; color:#ffffff; line-height:1.8;'>Contact us to request access:</div>
+        <div style='margin-top:8px;'>
+            <a href='mailto:customsclassifier@gmail.com' 
+               style='color:#C9A84C; font-size:1em; font-weight:600; text-decoration:underline; word-break:break-all;'>
+                customsclassifier@gmail.com
+            </a>
+        </div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -214,7 +219,6 @@ Answer concisely and practically. Name specific regulations where relevant."""
     )
     return response.choices[0].message.content
 
-# Page config
 st.set_page_config(page_title="Customs Classifier AI", page_icon="🛃", layout="centered")
 
 st.markdown("""
