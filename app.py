@@ -48,8 +48,11 @@ def check_password():
             render_landing()
         return False
     elif not st.session_state["password_correct"]:
-        render_access()
-        st.error("Incorrect password. Contact us for access.")
+        if st.session_state.get("show_access"):
+            render_access()
+        else:
+            render_landing()
+        st.error("Incorrect password. Try again or contact us for access.")
         return False
     return True
 
@@ -98,45 +101,45 @@ def render_landing():
         st.rerun()
 
     st.markdown("""
-    <div style='text-align:center; margin-top:16px; font-family:sans-serif; font-size:0.82em; color:#888;'>
-        Already have access? <span style='color:#002B5C; font-weight:600; cursor:pointer;'>Enter your password below.</span>
+    <div style='text-align:center; margin:20px 0 8px 0; font-family:sans-serif; font-size:0.82em; color:#888;'>
+        Already a subscriber? Enter your password below.
     </div>
     """, unsafe_allow_html=True)
+    st.text_input("Access Password", type="password", on_change=password_entered, key="password",
+                  placeholder="Enter your access password", label_visibility="collapsed")
 
 def render_access():
     st.markdown("""
     <div style='text-align:center; padding:32px 0 16px 0; border-bottom:3px solid #002B5C; margin-bottom:32px;'>
         <div style='font-size:44px;'>🛃</div>
         <h1 style='font-family:Georgia,serif; font-size:2.3em; color:#002B5C; margin:8px 0 0 0;'>Customs Classifier</h1>
-        <p style='color:#555; font-size:1em; margin-top:6px; font-weight:300;'>Get started below</p>
+        <p style='color:#555; font-size:1em; margin-top:6px; font-weight:300;'>Subscribe to get started</p>
     </div>
     """, unsafe_allow_html=True)
 
-    col1, col2 = st.columns(2, gap="large")
-
-    with col1:
-        st.markdown("""
-        <div style='background:#002B5C; padding:28px 24px; border-radius:2px; text-align:center; height:220px; display:flex; flex-direction:column; justify-content:center;'>
-            <div style='font-size:0.75em; color:#C9A84C; letter-spacing:1.5px; text-transform:uppercase; font-weight:600; margin-bottom:10px;'>New Subscriber</div>
-            <div style='font-family:Georgia,serif; font-size:1.8em; color:#ffffff; margin-bottom:4px;'>$19<span style='font-size:0.5em; font-weight:300;'>/mo</span></div>
-            <div style='font-size:0.8em; color:#aac; margin-bottom:16px;'>Unlimited classifications</div>
-        </div>
-        """, unsafe_allow_html=True)
+    # Centered payment card
+    col_l, col_c, col_r = st.columns([1, 2, 1])
+    with col_c:
         st.markdown(f"""
-        <a href='{STRIPE_LINK}' target='_blank' style='display:block; margin-top:8px; background:#C9A84C; color:#002B5C !important; text-align:center; padding:12px; border-radius:2px; font-weight:700; font-size:0.85em; letter-spacing:1px; text-transform:uppercase; text-decoration:none;'>
-            Subscribe Now →
-        </a>
-        """, unsafe_allow_html=True)
-
-    with col2:
-        st.markdown("""
-        <div style='background:#f9f9f9; border:1px solid #e0e0e0; padding:28px 24px; border-radius:2px; text-align:center; height:220px; display:flex; flex-direction:column; justify-content:center;'>
-            <div style='font-size:0.75em; color:#002B5C; letter-spacing:1.5px; text-transform:uppercase; font-weight:600; margin-bottom:10px;'>Already a Subscriber</div>
-            <div style='font-size:0.85em; color:#555; margin-bottom:16px;'>Enter your access password to continue</div>
+        <div style='background:#002B5C; padding:36px 28px; border-radius:2px; text-align:center;'>
+            <div style='font-size:0.75em; color:#C9A84C; letter-spacing:1.5px; text-transform:uppercase; font-weight:600; margin-bottom:12px;'>Monthly Subscription</div>
+            <div style='font-family:Georgia,serif; font-size:2.4em; color:#ffffff; margin-bottom:4px;'>$19<span style='font-size:0.4em; font-weight:300; margin-left:4px;'>/mo</span></div>
+            <div style='font-size:0.82em; color:#aac; margin-bottom:24px;'>Unlimited classifications · Cancel anytime</div>
+            <a href='{STRIPE_LINK}' target='_blank'
+               style='display:block; background:#C9A84C; color:#002B5C; text-align:center; padding:14px; border-radius:2px; font-weight:700; font-size:0.88em; letter-spacing:1px; text-transform:uppercase; text-decoration:none; margin-bottom:0;'>
+                Subscribe Now →
+            </a>
         </div>
         """, unsafe_allow_html=True)
-        st.text_input("Access Password", type="password", on_change=password_entered, key="password",
-                      placeholder="Enter your password", label_visibility="collapsed")
+
+    # Contact section
+    st.markdown("""
+    <div style='text-align:center; margin-top:28px; padding:20px; border:1px solid #e0e0e0; border-radius:2px;'>
+        <div style='font-family:sans-serif; font-size:0.72em; font-weight:600; letter-spacing:1.8px; text-transform:uppercase; color:#002B5C; margin-bottom:8px;'>Questions?</div>
+        <div style='font-size:0.88em; color:#555;'>Reach us at</div>
+        <div style='font-size:0.95em; font-weight:600; color:#002B5C; margin-top:4px;'>customsclassifier@gmail.com</div>
+    </div>
+    """, unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
     if st.button("← Back", use_container_width=False):
