@@ -14,6 +14,7 @@ pc = Pinecone(api_key=os.getenv('PINECONE_API_KEY'))
 index = pc.Index(os.getenv('PINECONE_INDEX'))
 
 TARIFF_LAST_UPDATED = "February 18, 2026"
+STRIPE_LINK = "https://buy.stripe.com/9B69AT4pb09kaUP59724002"
 
 TARIFF_ALERT_COUNTRIES = {
     "Vietnam": "⚠️ Vietnam is subject to 2025 reciprocal tariffs (currently ~20%, subject to change). Verify current rates at hts.usitc.gov before making import decisions.",
@@ -41,10 +42,13 @@ def password_entered():
 
 def check_password():
     if "password_correct" not in st.session_state:
-        render_landing()
+        if st.session_state.get("show_access"):
+            render_access()
+        else:
+            render_landing()
         return False
     elif not st.session_state["password_correct"]:
-        render_landing()
+        render_access()
         st.error("Incorrect password. Contact us for access.")
         return False
     return True
@@ -88,22 +92,56 @@ def render_landing():
         </div>
         """, unsafe_allow_html=True)
 
+    st.markdown("<br>", unsafe_allow_html=True)
+    if st.button("Get Access →", type="primary", use_container_width=True):
+        st.session_state["show_access"] = True
+        st.rerun()
+
     st.markdown("""
-    <div style='background:#002B5C; color:white; padding:28px 24px; border-radius:2px; margin:28px 0 20px 0; text-align:center;'>
-        <div style='font-size:0.9em; color:#C9A84C; letter-spacing:1px; text-transform:uppercase; font-weight:600; margin-bottom:12px;'>Get Access</div>
-        <div style='font-size:0.95em; color:#ffffff; line-height:1.8;'>Contact us to request access:</div>
-        <div style='margin-top:8px;'>
-            <a href='mailto:customsclassifier@gmail.com'
-               style='color:#C9A84C !important; font-size:1em; font-weight:600; text-decoration:none; word-break:break-all; border-bottom:2px solid #C9A84C;'>
-                customsclassifier@gmail.com
-            </a>
-        </div>
+    <div style='text-align:center; margin-top:16px; font-family:sans-serif; font-size:0.82em; color:#888;'>
+        Already have access? <span style='color:#002B5C; font-weight:600; cursor:pointer;'>Enter your password below.</span>
     </div>
     """, unsafe_allow_html=True)
 
-    st.markdown("<div style='font-family:sans-serif; font-size:0.72em; font-weight:600; letter-spacing:1.8px; text-transform:uppercase; color:#002B5C; margin-bottom:6px;'>Subscriber Login</div>", unsafe_allow_html=True)
-    st.text_input("Access Password", type="password", on_change=password_entered, key="password",
-                  placeholder="Enter your access password", label_visibility="collapsed")
+def render_access():
+    st.markdown("""
+    <div style='text-align:center; padding:32px 0 16px 0; border-bottom:3px solid #002B5C; margin-bottom:32px;'>
+        <div style='font-size:44px;'>🛃</div>
+        <h1 style='font-family:Georgia,serif; font-size:2.3em; color:#002B5C; margin:8px 0 0 0;'>Customs Classifier</h1>
+        <p style='color:#555; font-size:1em; margin-top:6px; font-weight:300;'>Get started below</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    col1, col2 = st.columns(2, gap="large")
+
+    with col1:
+        st.markdown("""
+        <div style='background:#002B5C; padding:28px 24px; border-radius:2px; text-align:center; height:220px; display:flex; flex-direction:column; justify-content:center;'>
+            <div style='font-size:0.75em; color:#C9A84C; letter-spacing:1.5px; text-transform:uppercase; font-weight:600; margin-bottom:10px;'>New Subscriber</div>
+            <div style='font-family:Georgia,serif; font-size:1.8em; color:#ffffff; margin-bottom:4px;'>$19<span style='font-size:0.5em; font-weight:300;'>/mo</span></div>
+            <div style='font-size:0.8em; color:#aac; margin-bottom:16px;'>Unlimited classifications</div>
+        </div>
+        """, unsafe_allow_html=True)
+        st.markdown(f"""
+        <a href='{STRIPE_LINK}' target='_blank' style='display:block; margin-top:8px; background:#C9A84C; color:#002B5C !important; text-align:center; padding:12px; border-radius:2px; font-weight:700; font-size:0.85em; letter-spacing:1px; text-transform:uppercase; text-decoration:none;'>
+            Subscribe Now →
+        </a>
+        """, unsafe_allow_html=True)
+
+    with col2:
+        st.markdown("""
+        <div style='background:#f9f9f9; border:1px solid #e0e0e0; padding:28px 24px; border-radius:2px; text-align:center; height:220px; display:flex; flex-direction:column; justify-content:center;'>
+            <div style='font-size:0.75em; color:#002B5C; letter-spacing:1.5px; text-transform:uppercase; font-weight:600; margin-bottom:10px;'>Already a Subscriber</div>
+            <div style='font-size:0.85em; color:#555; margin-bottom:16px;'>Enter your access password to continue</div>
+        </div>
+        """, unsafe_allow_html=True)
+        st.text_input("Access Password", type="password", on_change=password_entered, key="password",
+                      placeholder="Enter your password", label_visibility="collapsed")
+
+    st.markdown("<br>", unsafe_allow_html=True)
+    if st.button("← Back", use_container_width=False):
+        st.session_state["show_access"] = False
+        st.rerun()
 
 def get_embedding(text):
     response = openai_client.embeddings.create(
