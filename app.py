@@ -87,9 +87,8 @@ def render_landing():
 
     st.markdown("""
     <div style='background:#002B5C; color:white; padding:24px; border-radius:2px; margin:28px 0 20px 0; text-align:center;'>
-        <div style='font-family:Georgia,serif; font-size:1.5em; margin-bottom:4px;'>$49 <span style='font-size:0.55em; font-weight:300;'>/ month</span></div>
-        <div style='font-size:0.8em; color:#C9A84C; letter-spacing:1px; text-transform:uppercase; font-weight:600;'>Unlimited Classifications</div>
-        <div style='font-size:0.8em; color:#aac; margin-top:8px;'>Email <a href='mailto:customsclassifier@gmail.com' style='color:#C9A84C;'>customsclassifier@gmail.com</a> to get access</div>
+        <div style='font-size:0.9em; color:#C9A84C; letter-spacing:1px; text-transform:uppercase; font-weight:600; margin-bottom:8px;'>Get Access</div>
+        <div style='font-size:0.85em; color:#ccd; line-height:1.6;'>Email <a href='mailto:customsclassifier@gmail.com' style='color:#C9A84C;'>customsclassifier@gmail.com</a> to get access</div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -237,6 +236,7 @@ st.markdown("""
     a { color:#002B5C !important; }
     a:hover { color:#C9A84C !important; }
     .footer-note { text-align:center; padding:24px 0 8px 0; font-family:'Source Sans 3',sans-serif; font-size:0.78em; color:#aaa; border-top:1px solid #e0e0e0; margin-top:32px; line-height:1.6; }
+    .stAlert p { word-wrap:break-word !important; overflow-wrap:break-word !important; white-space:normal !important; }
     @media (max-width:640px) { [data-testid="column"] { width:100% !important; flex:1 1 100% !important; min-width:100% !important; } }
 </style>
 """, unsafe_allow_html=True)
