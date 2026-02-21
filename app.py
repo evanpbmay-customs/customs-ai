@@ -55,6 +55,10 @@ def render_landing():
         <div style='font-size:44px;'>🛃</div>
         <h1 style='font-family:Georgia,serif; font-size:2.3em; color:#002B5C; margin:8px 0 0 0;'>Customs Classifier</h1>
         <p style='color:#555; font-size:1em; margin-top:6px; font-weight:300;'>AI-powered HTS classification backed by real CBP rulings</p>
+        <div style='display:flex; justify-content:center; gap:8px; margin-top:14px; flex-wrap:wrap;'>
+            <span style='background:#002B5C; color:#C9A84C; font-size:0.72em; font-weight:600; padding:4px 10px; border-radius:2px; letter-spacing:1px; text-transform:uppercase;'>CBP Rulings Database</span>
+            <span style='background:#002B5C; color:#C9A84C; font-size:0.72em; font-weight:600; padding:4px 10px; border-radius:2px; letter-spacing:1px; text-transform:uppercase;'>GPT-4o Powered</span>
+        </div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -89,8 +93,8 @@ def render_landing():
         <div style='font-size:0.9em; color:#C9A84C; letter-spacing:1px; text-transform:uppercase; font-weight:600; margin-bottom:12px;'>Get Access</div>
         <div style='font-size:0.95em; color:#ffffff; line-height:1.8;'>Contact us to request access:</div>
         <div style='margin-top:8px;'>
-            <a href='mailto:customsclassifier@gmail.com' 
-               style='color:#C9A84C; font-size:1em; font-weight:600; text-decoration:underline; word-break:break-all;'>
+            <a href='mailto:customsclassifier@gmail.com'
+               style='color:#C9A84C !important; font-size:1em; font-weight:600; text-decoration:none; word-break:break-all; border-bottom:2px solid #C9A84C;'>
                 customsclassifier@gmail.com
             </a>
         </div>
@@ -255,7 +259,6 @@ st.markdown("""
     <div class='badge-row'>
         <span class='badge'>CBP Rulings Database</span>
         <span class='badge'>GPT-4o Powered</span>
-        <span class='badge'>2025 Tariffs Included</span>
     </div>
 </div>
 """, unsafe_allow_html=True)
