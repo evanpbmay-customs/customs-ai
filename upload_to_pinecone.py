@@ -1,5 +1,6 @@
 import json
 import os
+import time
 from dotenv import load_dotenv
 from openai import OpenAI
 from pinecone import Pinecone
@@ -10,39 +11,74 @@ openai_client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
 pc = Pinecone(api_key=os.getenv('PINECONE_API_KEY'))
 index = pc.Index(os.getenv('PINECONE_INDEX'))
 
-def get_embedding(text):
+BATCH_SIZE = 100
+EMBEDDING_BATCH = 100
+
+def get_embeddings_batch(texts):
     response = openai_client.embeddings.create(
-        input=text[:8000],
+        input=texts,
         model="text-embedding-ada-002"
     )
-    return response.data[0].embedding
+    return [r.embedding for r in response.data]
 
-def upload_rulings():
+def main():
+    print("Loading rulings...")
     with open('C:/customs_ai2/rulings.json', 'r') as f:
         rulings = json.load(f)
     
-    print(f"Uploading {len(rulings)} rulings to Pinecone...")
-    
-    for i, ruling in enumerate(rulings):
-        text = ruling.get('text', '')
-        if not text:
+    total = len(rulings)
+    print(f"Total rulings to upload: {total:,}")
+
+    # Check progress file
+    progress_file = 'C:/customs_ai2/upload_progress.json'
+    start_index = 0
+    if os.path.exists(progress_file):
+        with open(progress_file) as f:
+            progress = json.load(f)
+            start_index = progress.get('last_index', 0)
+        print(f"Resuming from index {start_index:,}")
+
+    for i in range(start_index, total, EMBEDDING_BATCH):
+        batch_rulings = rulings[i:i + EMBEDDING_BATCH]
+        texts = [r['text'][:8000] for r in batch_rulings]
+        
+        try:
+            embeddings = get_embeddings_batch(texts)
+        except Exception as e:
+            print(f"Embedding error at {i}: {e}")
+            time.sleep(5)
             continue
-        
-        embedding = get_embedding(text)
-        
-        index.upsert(vectors=[{
-            'id': ruling.get('ruling_number', str(i)),
-            'values': embedding,
-            'metadata': {
-                'ruling_number': ruling.get('ruling_number', ''),
-                'text': text[:1000],
-                'url': ruling.get('url', '')
-            }
-        }])
-        
-        print(f"Uploaded {i+1}/{len(rulings)}: {ruling.get('ruling_number')}")
-    
-    print("Done! All rulings uploaded to Pinecone.")
+
+        vectors = []
+        for j, (ruling, embedding) in enumerate(zip(batch_rulings, embeddings)):
+            vectors.append({
+                "id": ruling['ruling_number'],
+                "values": embedding,
+                "metadata": {
+                    "ruling_number": ruling['ruling_number'],
+                    "text": ruling['text'][:2000],
+                    "url": ruling.get('url', '')
+                }
+            })
+
+        # Upload to Pinecone in batches of 100
+        for k in range(0, len(vectors), BATCH_SIZE):
+            pinecone_batch = vectors[k:k + BATCH_SIZE]
+            try:
+                index.upsert(vectors=pinecone_batch)
+            except Exception as e:
+                print(f"Pinecone error at {i+k}: {e}")
+                time.sleep(5)
+
+        # Save progress
+        with open(progress_file, 'w') as f:
+            json.dump({'last_index': i + EMBEDDING_BATCH}, f)
+
+        print(f"Uploaded {min(i + EMBEDDING_BATCH, total):,}/{total:,} rulings")
+        time.sleep(0.5)
+
+    print(f"\nDone! All {total:,} rulings uploaded to Pinecone.")
 
 if __name__ == "__main__":
-    upload_rulings()
+    main()
+    
